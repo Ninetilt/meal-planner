@@ -1,5 +1,6 @@
 package de.dhbw
 
+import de.dhbw.mealplanner.module
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*

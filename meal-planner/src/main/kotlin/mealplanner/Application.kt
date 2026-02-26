@@ -1,4 +1,4 @@
-package de.dhbw
+package de.dhbw.mealplanner
 
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
