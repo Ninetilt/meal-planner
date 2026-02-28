@@ -1,4 +1,4 @@
-package de.dhbw.mealplanner.persistence.recipe
+package de.dhbw.mealplanner.persistence.user
 
 import de.dhbw.mealplanner.domain.user.User
 import de.dhbw.mealplanner.domain.user.UserId
