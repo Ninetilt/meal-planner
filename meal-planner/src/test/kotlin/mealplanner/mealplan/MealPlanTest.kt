@@ -4,6 +4,7 @@ import de.dhbw.mealplanner.domain.mealplan.MealDate
 import de.dhbw.mealplanner.domain.mealplan.MealPlan
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.mealplan.MealType
+import de.dhbw.mealplanner.domain.user.UserId
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -62,7 +63,7 @@ class MealPlanTest {
         val date = MealDate(LocalDate.of(2026, 1, 1))
         val meal = mealPlan.createMeal(date, MealType.LUNCH)
 
-        val userId = UUID.randomUUID()
+        val userId = UserId(UUID.randomUUID())
 
         meal.addParticipant(userId)
 
@@ -74,7 +75,7 @@ class MealPlanTest {
         val date = MealDate(LocalDate.of(2026, 1, 1))
         val meal = mealPlan.createMeal(date, MealType.DINNER)
 
-        val userId = UUID.randomUUID()
+        val userId = UserId(UUID.randomUUID())
 
         meal.assignResponsible(userId)
 
