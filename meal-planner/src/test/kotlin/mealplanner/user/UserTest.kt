@@ -29,4 +29,11 @@ class UserTest {
         user.changeName("Luigi")
         assertEquals("Luigi", user.getName())
     }
+
+    @Test
+    fun changeNameBlank() {
+        assertThrows(IllegalArgumentException::class.java) {
+            user.changeName("")
+        }
+    }
 }
