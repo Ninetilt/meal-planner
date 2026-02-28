@@ -17,6 +17,7 @@ class ShoppingListGenerator(
 
         val aggregatedIngredients = mutableMapOf<Pair<String, String>, Double>()
         val recipesWithoutIngredients = mutableListOf<String>()
+        var mealsWithoutParticipants = 0
 
         val relevantMeals = mealPlan.getMeals()
             .filter { meal ->
@@ -28,6 +29,12 @@ class ShoppingListGenerator(
 
             val recipeId = meal.recipeId ?: continue
             val recipe = recipeRepository.findById(recipeId) ?: continue
+
+            val portions = meal.portionCount()
+            if (portions <= 0) {
+                mealsWithoutParticipants++
+                continue
+            }
 
             val ingredients = recipe.getIngredients()
 
@@ -43,9 +50,10 @@ class ShoppingListGenerator(
                     ingredientQuantity.unit
                 )
 
+                val calculatedAmount = ingredientQuantity.amount * portions.toDouble()
+
                 aggregatedIngredients[key] =
-                    aggregatedIngredients.getOrDefault(key, 0.0) +
-                            ingredientQuantity.amount
+                    aggregatedIngredients.getOrDefault(key, 0.0) + calculatedAmount
             }
         }
 
@@ -59,7 +67,8 @@ class ShoppingListGenerator(
 
         return ShoppingList(
             items = items,
-            recipesWithoutIngredients = recipesWithoutIngredients
+            recipesWithoutIngredients = recipesWithoutIngredients,
+            mealsWithoutParticipants = mealsWithoutParticipants
         )
     }
 }

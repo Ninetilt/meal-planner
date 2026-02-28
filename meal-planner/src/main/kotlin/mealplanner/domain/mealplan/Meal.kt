@@ -20,8 +20,6 @@ class Meal(
         this.recipeId = null
     }
 
-    //fun getRecipeId(): RecipeId? = recipeId
-
     fun addParticipant(userId: UserId) {
         participants.add(userId)
     }
@@ -41,4 +39,6 @@ class Meal(
     fun getParticipants(): Set<UserId> = participants.toSet()
 
     fun getResponsibleUsers(): Set<UserId> = responsibleUsers.toSet()
+
+    fun portionCount(): Int = participants.size
 }
