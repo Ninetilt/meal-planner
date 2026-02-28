@@ -10,6 +10,7 @@ import de.dhbw.mealplanner.domain.recipe.Recipe
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import de.dhbw.mealplanner.domain.recipe.RecipeRepository
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingListGenerator
+import de.dhbw.mealplanner.domain.user.UserId
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.*
@@ -62,6 +63,9 @@ class ShoppingListGeneratorTest {
         val meal = mealPlan.createMeal(date, MealType.LUNCH)
         meal.assignRecipe(recipeId)
 
+        meal.addParticipant(UserId(UUID.randomUUID()))
+        meal.addParticipant(UserId(UUID.randomUUID()))
+
         val result = generator.generate(
             mealPlan,
             LocalDate.of(2026, 2, 27),
@@ -69,10 +73,11 @@ class ShoppingListGeneratorTest {
         )
 
         assertEquals(2, result.items.size)
-        assertEquals(2.0, result.items[0].totalAmount)
+        assertEquals(4.0, result.items[0].totalAmount)
         assertEquals("Tomato", result.items[0].ingredient.value)
-        assertEquals(250.0, result.items[1].totalAmount)
+        assertEquals(500.0, result.items[1].totalAmount)
         assertEquals("Mozzarella", result.items[1].ingredient.value)
+        assertEquals(0, result.mealsWithoutParticipants)
     }
 
     @Test
@@ -89,6 +94,8 @@ class ShoppingListGeneratorTest {
         val date = MealDate(LocalDate.of(2026, 2, 28))
         val meal = mealPlan.createMeal(date, MealType.DINNER)
         meal.assignRecipe(recipeId)
+
+        meal.addParticipant(UserId(UUID.randomUUID()))
 
         val result = generator.generate(
             mealPlan,
@@ -119,7 +126,7 @@ class ShoppingListGeneratorTest {
 
         every { recipeRepository.findById(recipeId) } returns recipe
 
-        val mealDate = MealDate(LocalDate.of(2026, 2, 28)) // außerhalb
+        val mealDate = MealDate(LocalDate.of(2026, 2, 28))
         val meal = mealPlan.createMeal(mealDate, MealType.LUNCH)
         meal.assignRecipe(recipeId)
 
@@ -130,5 +137,39 @@ class ShoppingListGeneratorTest {
         )
 
         assertTrue(result.items.isEmpty())
+    }
+
+    @Test
+    fun ignoreMealsWithoutParticipantsAndIncreaseCounter() {
+
+        val recipeId = RecipeId(UUID.randomUUID())
+        val recipe = Recipe(
+            id = recipeId,
+            title = "Something more tasty"
+        )
+
+        recipe.addIngredient(
+            IngredientQuantity(
+                ingredient = IngredientName("Tomato"),
+                amount = 2.0,
+                unit = "pieces"
+            )
+        )
+
+        every { recipeRepository.findById(recipeId) } returns recipe
+
+        val mealDate = MealDate(LocalDate.of(2026, 2, 28))
+        val meal = mealPlan.createMeal(mealDate, MealType.DINNER)
+        meal.assignRecipe(recipeId)
+
+        val result = generator.generate(
+            mealPlan,
+            LocalDate.of(2026, 2, 27),
+            LocalDate.of(2026, 3, 1)
+        )
+
+        assertTrue(result.items.isEmpty())
+
+        assertEquals(1, result.mealsWithoutParticipants)
     }
 }
