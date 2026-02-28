@@ -16,6 +16,12 @@ class Meal(
         this.recipeId = recipeId
     }
 
+    fun removeRecipe() {
+        this.recipeId = null
+    }
+
+    fun getRecipeId(): RecipeId? = recipeId
+
     fun addParticipant(userId: UserId) {
         participants.add(userId)
     }
