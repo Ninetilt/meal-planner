@@ -26,7 +26,7 @@ class ShoppingListGenerator(
 
         for (meal in relevantMeals) {
 
-            val recipeId = meal.getRecipeId() ?: continue
+            val recipeId = meal.recipeId ?: continue
             val recipe = recipeRepository.findById(recipeId) ?: continue
 
             val ingredients = recipe.getIngredients()
