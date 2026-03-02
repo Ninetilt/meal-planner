@@ -5,6 +5,8 @@ import de.dhbw.mealplanner.api.dto.mealplan.AssignRecipeRequest
 import de.dhbw.mealplanner.api.dto.mealplan.AssignResponsibleRequest
 import de.dhbw.mealplanner.api.dto.mealplan.CreateMealPlanRequest
 import de.dhbw.mealplanner.api.dto.mealplan.CreateMealRequest
+import de.dhbw.mealplanner.api.dto.mealplan.MealDebugResponse
+import de.dhbw.mealplanner.api.dto.mealplan.MealPlanDebugResponse
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveParticipantRequest
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveResponsibleRequest
 import de.dhbw.mealplanner.domain.mealplan.MealDate
@@ -193,6 +195,34 @@ fun Route.mealPlanRoutes(
             mealPlanRepository.save(plan)
 
             call.respond(HttpStatusCode.OK)
+        }
+
+        // erndpunkt erstmal nur für debugging
+        get("/{planId}") {
+            val planUuid = parseUuidParam(call.parameters["planId"])
+                ?: return@get call.respond(HttpStatusCode.BadRequest, "invalid planId")
+
+            val plan = mealPlanRepository.findById(MealPlanId(planUuid))
+                ?: return@get call.respond(HttpStatusCode.NotFound, "mealplan not found")
+
+            val meals = plan.getMeals().map { meal ->
+                MealDebugResponse(
+                    id = meal.id.value.toString(),
+                    date = meal.date.value.toString(),
+                    type = meal.type.name,
+                    recipeId = meal.recipeId?.value?.toString(),
+                    participantCount = meal.getParticipants().size,
+                    responsibleCount = meal.getResponsibleUsers().size
+                )
+            }
+
+            val response = MealPlanDebugResponse(
+                id = plan.id.value.toString(),
+                mealCount = meals.size,
+                meals = meals
+            )
+
+            call.respond(response)
         }
     }
 }
