@@ -2,8 +2,11 @@ package de.dhbw.mealplanner.api.routing
 
 import de.dhbw.mealplanner.api.dto.mealplan.AddParticipantRequest
 import de.dhbw.mealplanner.api.dto.mealplan.AssignRecipeRequest
+import de.dhbw.mealplanner.api.dto.mealplan.AssignResponsibleRequest
 import de.dhbw.mealplanner.api.dto.mealplan.CreateMealPlanRequest
 import de.dhbw.mealplanner.api.dto.mealplan.CreateMealRequest
+import de.dhbw.mealplanner.api.dto.mealplan.RemoveParticipantRequest
+import de.dhbw.mealplanner.api.dto.mealplan.RemoveResponsibleRequest
 import de.dhbw.mealplanner.domain.mealplan.MealDate
 import de.dhbw.mealplanner.domain.mealplan.MealPlan
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
@@ -85,6 +88,81 @@ fun Route.mealPlanRoutes(
 
             mealPlanRepository.save(plan)
 
+            call.respond(HttpStatusCode.OK)
+        }
+
+        delete("/{planId}/meals/{mealId}/participants") {
+            val planId = parseUuidParam(call.parameters["planId"])
+                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid planId")
+            val mealId = parseUuidParam(call.parameters["mealId"])
+                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid mealId")
+
+            val plan = mealPlanRepository.findById(MealPlanId(planId))
+                ?: return@delete call.respond(HttpStatusCode.NotFound, "mealplan not found")
+
+            val meal = plan.getMeals().find { it.id.value == mealId }
+                ?: return@delete call.respond(HttpStatusCode.NotFound, "meal not found")
+
+            val req = call.receive<RemoveParticipantRequest>()
+            val userUuid = runCatching { UUID.fromString(req.userId) }.getOrNull()
+                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid userId")
+
+            val user = userRepository.findById(UserId(userUuid))
+                ?: return@delete call.respond(HttpStatusCode.NotFound, "user not found")
+
+            meal.removeParticipant(user.id)
+
+            mealPlanRepository.save(plan)
+            call.respond(HttpStatusCode.OK)
+        }
+
+        post("/{planId}/meals/{mealId}/responsibles") {
+            val planId = parseUuidParam(call.parameters["planId"])
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid planId")
+            val mealId = parseUuidParam(call.parameters["mealId"])
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid mealId")
+
+            val plan = mealPlanRepository.findById(MealPlanId(planId))
+                ?: return@post call.respond(HttpStatusCode.NotFound, "mealplan not found")
+
+            val meal = plan.getMeals().find { it.id.value == mealId }
+                ?: return@post call.respond(HttpStatusCode.NotFound, "meal not found")
+
+            val req = call.receive<AssignResponsibleRequest>()
+            val userUuid = runCatching { UUID.fromString(req.userId) }.getOrNull()
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid userId")
+
+            val user = userRepository.findById(UserId(userUuid))
+                ?: return@post call.respond(HttpStatusCode.NotFound, "user not found")
+
+            meal.assignResponsible(user.id)
+
+            mealPlanRepository.save(plan)
+            call.respond(HttpStatusCode.OK)
+        }
+
+        delete("/{planId}/meals/{mealId}/responsibles") {
+            val planId = parseUuidParam(call.parameters["planId"])
+                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid planId")
+            val mealId = parseUuidParam(call.parameters["mealId"])
+                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid mealId")
+
+            val plan = mealPlanRepository.findById(MealPlanId(planId))
+                ?: return@delete call.respond(HttpStatusCode.NotFound, "mealplan not found")
+
+            val meal = plan.getMeals().find { it.id.value == mealId }
+                ?: return@delete call.respond(HttpStatusCode.NotFound, "meal not found")
+
+            val req = call.receive<RemoveResponsibleRequest>()
+            val userUuid = runCatching { UUID.fromString(req.userId) }.getOrNull()
+                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid userId")
+
+            val user = userRepository.findById(UserId(userUuid))
+                ?: return@delete call.respond(HttpStatusCode.NotFound, "user not found")
+
+            meal.removeResponsible(user.id)
+
+            mealPlanRepository.save(plan)
             call.respond(HttpStatusCode.OK)
         }
 
