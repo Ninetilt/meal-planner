@@ -2,6 +2,7 @@ package de.dhbw.mealplanner
 
 import de.dhbw.mealplanner.application.shoppinglist.GenerateShoppingListUseCase
 import de.dhbw.mealplanner.api.routing.registerRoutes
+import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingListGenerator
 import de.dhbw.mealplanner.persistence.mealplan.InMemoryMealPlanRepository
 import de.dhbw.mealplanner.persistence.recipe.InMemoryRecipeRepository
@@ -34,12 +35,15 @@ fun Application.module() {
     val userRepository = InMemoryUserRepository()
 
     val shoppingListGenerator = ShoppingListGenerator(recipeRepository)
+
     val generateShoppingListUseCase = GenerateShoppingListUseCase(mealPlanRepository, shoppingListGenerator)
+    val assignRecipeToMealUseCase = AssignRecipeToMealUseCase(mealPlanRepository, recipeRepository)
 
     registerRoutes(
         recipeRepository = recipeRepository,
         mealPlanRepository = mealPlanRepository,
         userRepository = userRepository,
-        generateShoppingListUseCase = generateShoppingListUseCase
+        generateShoppingListUseCase = generateShoppingListUseCase,
+        assignRecipeToMealUseCase = assignRecipeToMealUseCase,
     )
 }

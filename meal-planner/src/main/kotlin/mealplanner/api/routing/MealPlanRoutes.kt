@@ -9,7 +9,10 @@ import de.dhbw.mealplanner.api.dto.mealplan.MealDebugResponse
 import de.dhbw.mealplanner.api.dto.mealplan.MealPlanDebugResponse
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveParticipantRequest
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveResponsibleRequest
+import de.dhbw.mealplanner.application.common.NotFoundError
+import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealDate
+import de.dhbw.mealplanner.domain.mealplan.MealId
 import de.dhbw.mealplanner.domain.mealplan.MealPlan
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
@@ -28,7 +31,8 @@ import java.util.UUID
 fun Route.mealPlanRoutes(
     mealPlanRepository: MealPlanRepository,
     recipeRepository: RecipeRepository,
-    userRepository: UserRepository
+    userRepository: UserRepository,
+    assignRecipeToMealUseCase: AssignRecipeToMealUseCase
 ) {
     route("/mealplans") {
 
@@ -175,24 +179,19 @@ fun Route.mealPlanRoutes(
             val mealUuid = parseUuidParam(call.parameters["mealId"])
                 ?: return@put call.respond(HttpStatusCode.BadRequest, "invalid mealId")
 
-            val plan = mealPlanRepository.findById(MealPlanId(planUuid))
-                ?: return@put call.respond(HttpStatusCode.NotFound, "mealplan not found")
-
-            val meal = plan.getMeals().find { it.id.value == mealUuid }
-                ?: return@put call.respond(HttpStatusCode.NotFound, "meal not found")
-
             val req = call.receive<AssignRecipeRequest>()
             val recipeUuid = runCatching { UUID.fromString(req.recipeId) }.getOrNull()
                 ?: return@put call.respond(HttpStatusCode.BadRequest, "invalid recipeId")
 
-            val recipeExists = recipeRepository.findById(RecipeId(recipeUuid)) != null
-            if (!recipeExists) {
-                return@put call.respond(HttpStatusCode.NotFound, "recipe not found")
+            try {
+                assignRecipeToMealUseCase.execute(
+                    mealPlanId = MealPlanId(planUuid),
+                    mealId = MealId(mealUuid),
+                    recipeId = RecipeId(recipeUuid)
+                )
+            } catch (e: NotFoundError) {
+                return@put call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
             }
-
-            meal.recipeId = RecipeId(recipeUuid)
-
-            mealPlanRepository.save(plan)
 
             call.respond(HttpStatusCode.OK)
         }
