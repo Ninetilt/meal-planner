@@ -2,7 +2,9 @@ package de.dhbw.mealplanner.api.routing
 
 import de.dhbw.mealplanner.application.mealplan.AddParticipantToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
+import de.dhbw.mealplanner.application.mealplan.AssignResponsibleToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveParticipantFromMealUseCase
+import de.dhbw.mealplanner.application.mealplan.RemoveResponsibleFromMealUseCase
 import de.dhbw.mealplanner.application.shoppinglist.GenerateShoppingListUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
 import de.dhbw.mealplanner.domain.recipe.RecipeRepository
@@ -17,7 +19,9 @@ fun Application.registerRoutes(
     generateShoppingListUseCase: GenerateShoppingListUseCase,
     assignRecipeToMealUseCase: AssignRecipeToMealUseCase,
     addParticipantToMealUseCase: AddParticipantToMealUseCase,
-    removeParticipantFromMealUseCase: RemoveParticipantFromMealUseCase
+    removeParticipantFromMealUseCase: RemoveParticipantFromMealUseCase,
+    assignResponsibleToMealUseCase: AssignResponsibleToMealUseCase,
+    removeResponsibleFromMealUseCase: RemoveResponsibleFromMealUseCase
 ) {
     routing {
         recipeRoutes(recipeRepository)
@@ -28,7 +32,9 @@ fun Application.registerRoutes(
             userRepository,
             assignRecipeToMealUseCase,
             addParticipantToMealUseCase,
-            removeParticipantFromMealUseCase
+            removeParticipantFromMealUseCase,
+            assignResponsibleToMealUseCase,
+            removeResponsibleFromMealUseCase,
             )
         shoppingRoutes(generateShoppingListUseCase)
     }
