@@ -2,7 +2,9 @@ package de.dhbw.mealplanner
 
 import de.dhbw.mealplanner.application.shoppinglist.GenerateShoppingListUseCase
 import de.dhbw.mealplanner.api.routing.registerRoutes
+import de.dhbw.mealplanner.application.mealplan.AddParticipantToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
+import de.dhbw.mealplanner.application.mealplan.RemoveParticipantFromMealUseCase
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingListGenerator
 import de.dhbw.mealplanner.persistence.mealplan.InMemoryMealPlanRepository
 import de.dhbw.mealplanner.persistence.recipe.InMemoryRecipeRepository
@@ -38,6 +40,8 @@ fun Application.module() {
 
     val generateShoppingListUseCase = GenerateShoppingListUseCase(mealPlanRepository, shoppingListGenerator)
     val assignRecipeToMealUseCase = AssignRecipeToMealUseCase(mealPlanRepository, recipeRepository)
+    val addParticipantToMealUseCase = AddParticipantToMealUseCase(mealPlanRepository, userRepository)
+    val removeParticipantFromMealUseCase = RemoveParticipantFromMealUseCase(mealPlanRepository, userRepository)
 
     registerRoutes(
         recipeRepository = recipeRepository,
@@ -45,5 +49,7 @@ fun Application.module() {
         userRepository = userRepository,
         generateShoppingListUseCase = generateShoppingListUseCase,
         assignRecipeToMealUseCase = assignRecipeToMealUseCase,
+        addParticipantToMealUseCase = addParticipantToMealUseCase,
+        removeParticipantFromMealUseCase = removeParticipantFromMealUseCase,
     )
 }
