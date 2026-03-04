@@ -17,6 +17,7 @@ import de.dhbw.mealplanner.application.mealplan.AssignResponsibleToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.CreateMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.CreateMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveParticipantFromMealUseCase
+import de.dhbw.mealplanner.application.mealplan.RemoveRecipeFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveResponsibleFromMealUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealDate
 import de.dhbw.mealplanner.domain.mealplan.MealId
@@ -46,6 +47,7 @@ fun Route.mealPlanRoutes(
     removeResponsibleFromMealUseCase: RemoveResponsibleFromMealUseCase,
     createMealPlanUseCase: CreateMealPlanUseCase,
     createMealUseCase: CreateMealUseCase,
+    removeRecipeFromMealUseCase: RemoveRecipeFromMealUseCase,
 ) {
     route("/mealplans") {
 
@@ -202,6 +204,25 @@ fun Route.mealPlanRoutes(
                 )
             } catch (e: NotFoundError) {
                 return@put call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
+            }
+
+            call.respond(HttpStatusCode.OK)
+        }
+
+        delete("/{planId}/meals/{mealId}/recipe") {
+            val planUuid = parseUuidParam(call.parameters["planId"])
+                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid planId")
+
+            val mealUuid = parseUuidParam(call.parameters["mealId"])
+                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid mealId")
+
+            try {
+                removeRecipeFromMealUseCase.execute(
+                    mealPlanId = MealPlanId(planUuid),
+                    mealId = MealId(mealUuid)
+                )
+            } catch (e: NotFoundError) {
+                return@delete call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
             }
 
             call.respond(HttpStatusCode.OK)

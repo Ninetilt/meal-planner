@@ -8,6 +8,7 @@ import de.dhbw.mealplanner.application.mealplan.AssignResponsibleToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.CreateMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.CreateMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveParticipantFromMealUseCase
+import de.dhbw.mealplanner.application.mealplan.RemoveRecipeFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveResponsibleFromMealUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
 import de.dhbw.mealplanner.application.user.CreateUserUseCase
@@ -54,6 +55,7 @@ fun Application.module() {
     val createRecipeUseCase = CreateRecipeUseCase(recipeRepository)
     val createMealPlanUseCase = CreateMealPlanUseCase(mealPlanRepository)
     val createMealUseCase = CreateMealUseCase(mealPlanRepository)
+    val removeRecipeFromMealUseCase = RemoveRecipeFromMealUseCase(mealPlanRepository)
 
     registerRoutes(
         recipeRepository = recipeRepository,
@@ -69,5 +71,6 @@ fun Application.module() {
         createRecipeUseCase = createRecipeUseCase,
         createMealPlanUseCase = createMealPlanUseCase,
         createMealUseCase = createMealUseCase,
+        removeRecipeFromMealUseCase = removeRecipeFromMealUseCase,
     )
 }
