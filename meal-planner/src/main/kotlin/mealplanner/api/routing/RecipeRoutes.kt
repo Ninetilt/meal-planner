@@ -1,11 +1,13 @@
 package de.dhbw.mealplanner.api.routing
 
+import de.dhbw.mealplanner.api.dto.mealplan.RemoveIngredientRequest
 import de.dhbw.mealplanner.api.dto.recipe.AddIngredientRequest
 import de.dhbw.mealplanner.api.dto.recipe.CreateRecipeRequest
 import de.dhbw.mealplanner.api.dto.recipe.RecipeResponse
 import de.dhbw.mealplanner.application.common.IdResponse
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
+import de.dhbw.mealplanner.application.mealplan.RemoveIngredientFromRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
 import de.dhbw.mealplanner.domain.recipe.IngredientName
@@ -23,6 +25,7 @@ fun Route.recipeRoutes(
     recipeRepository: RecipeRepository,
     createRecipeUseCase: CreateRecipeUseCase,
     addIngredientToRecipeUseCase: AddIngredientToRecipeUseCase,
+    removeIngredientFromRecipeUseCase: RemoveIngredientFromRecipeUseCase
     ) {
 
     route("/recipes") {
@@ -60,6 +63,27 @@ fun Route.recipeRoutes(
             }
 
             call.respond(HttpStatusCode.Created)
+        }
+
+        delete("/{id}/ingredients") {
+            val idParam = call.parameters["id"]
+            val uuid = runCatching { UUID.fromString(idParam) }.getOrNull()
+                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid recipe id")
+
+            val req = call.receive<RemoveIngredientRequest>()
+
+            try {
+                removeIngredientFromRecipeUseCase.execute(
+                    recipeId = RecipeId(uuid),
+                    ingredient = req.ingredient
+                )
+            } catch (e: ValidationError) {
+                return@delete call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
+            } catch (e: NotFoundError) {
+                return@delete call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
+            }
+
+            call.respond(HttpStatusCode.OK)
         }
 
         get {
