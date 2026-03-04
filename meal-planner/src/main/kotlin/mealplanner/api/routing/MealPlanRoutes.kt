@@ -9,10 +9,13 @@ import de.dhbw.mealplanner.api.dto.mealplan.MealDebugResponse
 import de.dhbw.mealplanner.api.dto.mealplan.MealPlanDebugResponse
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveParticipantRequest
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveResponsibleRequest
+import de.dhbw.mealplanner.application.common.IdResponse
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.mealplan.AddParticipantToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignResponsibleToMealUseCase
+import de.dhbw.mealplanner.application.mealplan.CreateMealPlanUseCase
+import de.dhbw.mealplanner.application.mealplan.CreateMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveParticipantFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveResponsibleFromMealUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealDate
@@ -40,15 +43,20 @@ fun Route.mealPlanRoutes(
     addParticipantToMealUseCase: AddParticipantToMealUseCase,
     removeParticipantFromMealUseCase: RemoveParticipantFromMealUseCase,
     assignResponsibleToMealUseCase: AssignResponsibleToMealUseCase,
-    removeResponsibleFromMealUseCase: RemoveResponsibleFromMealUseCase
+    removeResponsibleFromMealUseCase: RemoveResponsibleFromMealUseCase,
+    createMealPlanUseCase: CreateMealPlanUseCase,
+    createMealUseCase: CreateMealUseCase,
 ) {
     route("/mealplans") {
 
         post {
             call.receive<CreateMealPlanRequest>()
-            val plan = MealPlan(MealPlanId(UUID.randomUUID()))
-            mealPlanRepository.save(plan)
-            call.respond(HttpStatusCode.Created, mapOf("id" to plan.id.value.toString()))
+            val mealPlanId = try {
+                createMealPlanUseCase.execute()
+            } catch (e: Exception) {
+                return@post call.respond(HttpStatusCode.BadRequest, "cannot create mealplan")
+            }
+            call.respond(HttpStatusCode.Created, IdResponse(mealPlanId.value.toString()))
         }
 
         get {
@@ -57,26 +65,28 @@ fun Route.mealPlanRoutes(
         }
 
         post("/{planId}/meals") {
-            val planId = parseUuidParam(call.parameters["planId"])
+            val planUuid = parseUuidParam(call.parameters["planId"])
                 ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid planId")
 
-            val plan = mealPlanRepository.findById(MealPlanId(planId))
-                ?: return@post call.respond(HttpStatusCode.NotFound, "mealplan not found")
-
             val req = call.receive<CreateMealRequest>()
+
             val date = runCatching { LocalDate.parse(req.date) }.getOrNull()
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid date (expected YYYY-MM-DD)")
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid date")
 
             val type = runCatching { MealType.valueOf(req.type) }.getOrNull()
                 ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid type")
 
-            val meal = runCatching { plan.createMeal(MealDate(date), type) }.getOrElse {
-                return@post call.respond(HttpStatusCode.BadRequest, it.message ?: "cannot create meal")
+            val mealId = try {
+                createMealUseCase.execute(
+                    mealPlanId = MealPlanId(planUuid),
+                    date = date,
+                    type = type
+                )
+            } catch (e: NotFoundError) {
+                return@post call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
             }
 
-            mealPlanRepository.save(plan)
-
-            call.respond(HttpStatusCode.Created, mapOf("mealId" to meal.id.value.toString()))
+            call.respond(HttpStatusCode.Created,IdResponse(mealId.value.toString()))
         }
 
         post("/{planId}/meals/{mealId}/participants") {

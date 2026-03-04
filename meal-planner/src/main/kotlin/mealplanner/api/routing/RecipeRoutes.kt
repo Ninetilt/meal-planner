@@ -3,6 +3,9 @@ package de.dhbw.mealplanner.api.routing
 import de.dhbw.mealplanner.api.dto.recipe.AddIngredientRequest
 import de.dhbw.mealplanner.api.dto.recipe.CreateRecipeRequest
 import de.dhbw.mealplanner.api.dto.recipe.RecipeResponse
+import de.dhbw.mealplanner.application.common.IdResponse
+import de.dhbw.mealplanner.application.common.ValidationError
+import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
 import de.dhbw.mealplanner.domain.recipe.IngredientName
 import de.dhbw.mealplanner.domain.recipe.IngredientQuantity
 import de.dhbw.mealplanner.domain.recipe.Recipe
@@ -14,32 +17,23 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 import java.util.UUID
 
-fun Route.recipeRoutes(recipeRepository: RecipeRepository) {
+fun Route.recipeRoutes(
+    recipeRepository: RecipeRepository,
+    createRecipeUseCase: CreateRecipeUseCase,
+    ) {
 
     route("/recipes") {
 
         post {
             val req = call.receive<CreateRecipeRequest>()
 
-            if (req.title.isBlank()) {
-                call.respond(HttpStatusCode.BadRequest, "title must not be blank")
-                return@post
+            val recipeId = try {
+                createRecipeUseCase.execute(req.title)
+            } catch (e: ValidationError) {
+                return@post call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
             }
 
-            val recipe = Recipe(
-                id = RecipeId(UUID.randomUUID()),
-                title = req.title
-            )
-
-            recipeRepository.save(recipe)
-
-            call.respond(
-                HttpStatusCode.Created,
-                RecipeResponse(
-                    id = recipe.id.value.toString(),
-                    title = recipe.getTitle()
-                )
-            )
+            call.respond(HttpStatusCode.Created, IdResponse(recipeId.value.toString()))
         }
 
         post("/{id}/ingredients") {

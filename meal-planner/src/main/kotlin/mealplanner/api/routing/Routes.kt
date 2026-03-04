@@ -3,9 +3,13 @@ package de.dhbw.mealplanner.api.routing
 import de.dhbw.mealplanner.application.mealplan.AddParticipantToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignResponsibleToMealUseCase
+import de.dhbw.mealplanner.application.mealplan.CreateMealPlanUseCase
+import de.dhbw.mealplanner.application.mealplan.CreateMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveParticipantFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveResponsibleFromMealUseCase
+import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
 import de.dhbw.mealplanner.application.shoppinglist.GenerateShoppingListUseCase
+import de.dhbw.mealplanner.application.user.CreateUserUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
 import de.dhbw.mealplanner.domain.recipe.RecipeRepository
 import de.dhbw.mealplanner.domain.user.UserRepository
@@ -21,11 +25,18 @@ fun Application.registerRoutes(
     addParticipantToMealUseCase: AddParticipantToMealUseCase,
     removeParticipantFromMealUseCase: RemoveParticipantFromMealUseCase,
     assignResponsibleToMealUseCase: AssignResponsibleToMealUseCase,
-    removeResponsibleFromMealUseCase: RemoveResponsibleFromMealUseCase
+    removeResponsibleFromMealUseCase: RemoveResponsibleFromMealUseCase,
+    createUserUseCase: CreateUserUseCase,
+    createRecipeUseCase: CreateRecipeUseCase,
+    createMealPlanUseCase: CreateMealPlanUseCase,
+    createMealUseCase: CreateMealUseCase
 ) {
     routing {
-        recipeRoutes(recipeRepository)
-        userRoutes(userRepository)
+        recipeRoutes(
+            recipeRepository,
+            createRecipeUseCase
+            )
+        userRoutes(createUserUseCase)
         mealPlanRoutes(
             mealPlanRepository,
             recipeRepository,
@@ -35,6 +46,8 @@ fun Application.registerRoutes(
             removeParticipantFromMealUseCase,
             assignResponsibleToMealUseCase,
             removeResponsibleFromMealUseCase,
+            createMealPlanUseCase,
+            createMealUseCase,
             )
         shoppingRoutes(generateShoppingListUseCase)
     }
