@@ -4,7 +4,9 @@ import de.dhbw.mealplanner.api.dto.recipe.AddIngredientRequest
 import de.dhbw.mealplanner.api.dto.recipe.CreateRecipeRequest
 import de.dhbw.mealplanner.api.dto.recipe.RecipeResponse
 import de.dhbw.mealplanner.application.common.IdResponse
+import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
+import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
 import de.dhbw.mealplanner.domain.recipe.IngredientName
 import de.dhbw.mealplanner.domain.recipe.IngredientQuantity
@@ -20,6 +22,7 @@ import java.util.UUID
 fun Route.recipeRoutes(
     recipeRepository: RecipeRepository,
     createRecipeUseCase: CreateRecipeUseCase,
+    addIngredientToRecipeUseCase: AddIngredientToRecipeUseCase,
     ) {
 
     route("/recipes") {
@@ -41,34 +44,20 @@ fun Route.recipeRoutes(
             val uuid = runCatching { UUID.fromString(idParam) }.getOrNull()
                 ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid recipe id")
 
-            val recipe = recipeRepository.findById(RecipeId(uuid))
-                ?: return@post call.respond(HttpStatusCode.NotFound, "recipe not found")
-
             val req = call.receive<AddIngredientRequest>()
 
-            if (req.ingredient.isBlank()) {
-                return@post call.respond(HttpStatusCode.BadRequest, "ingredient must not be blank")
-            }
-            if (req.unit.isBlank()) {
-                return@post call.respond(HttpStatusCode.BadRequest, "unit must not be blank")
-            }
-            if (req.amount <= 0) {
-                return@post call.respond(HttpStatusCode.BadRequest, "amount must be > 0")
-            }
-
-            val ingredientQuantity = IngredientQuantity(
-                ingredient = IngredientName(req.ingredient),
-                amount = req.amount,
-                unit = req.unit
-            )
-
             try {
-                recipe.addIngredient(ingredientQuantity)
-            } catch (e: IllegalArgumentException) {
-                return@post call.respond(HttpStatusCode.BadRequest, e.message ?: "cannot add ingredient")
+                addIngredientToRecipeUseCase.execute(
+                    recipeId = RecipeId(uuid),
+                    ingredient = req.ingredient,
+                    amount = req.amount,
+                    unit = req.unit
+                )
+            } catch (e: ValidationError) {
+                return@post call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
+            } catch (e: NotFoundError) {
+                return@post call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
             }
-
-            recipeRepository.save(recipe)
 
             call.respond(HttpStatusCode.Created)
         }

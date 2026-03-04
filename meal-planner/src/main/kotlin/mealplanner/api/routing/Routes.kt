@@ -8,6 +8,7 @@ import de.dhbw.mealplanner.application.mealplan.CreateMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveParticipantFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveRecipeFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveResponsibleFromMealUseCase
+import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
 import de.dhbw.mealplanner.application.shoppinglist.GenerateShoppingListUseCase
 import de.dhbw.mealplanner.application.user.CreateUserUseCase
@@ -32,11 +33,13 @@ fun Application.registerRoutes(
     createMealPlanUseCase: CreateMealPlanUseCase,
     createMealUseCase: CreateMealUseCase,
     removeRecipeFromMealUseCase: RemoveRecipeFromMealUseCase,
+    addIngredientToRecipeUseCase: AddIngredientToRecipeUseCase,
 ) {
     routing {
         recipeRoutes(
             recipeRepository,
-            createRecipeUseCase
+            createRecipeUseCase,
+            addIngredientToRecipeUseCase,
             )
         userRoutes(createUserUseCase)
         mealPlanRoutes(
