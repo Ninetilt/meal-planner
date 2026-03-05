@@ -71,7 +71,6 @@ fun Application.module() {
 
     registerRoutes(
         mealPlanRepository = mealPlanRepository,
-        userRepository = userRepository,
         generateShoppingListUseCase = generateShoppingListUseCase,
         assignRecipeToMealUseCase = assignRecipeToMealUseCase,
         addParticipantToMealUseCase = addParticipantToMealUseCase,

@@ -21,15 +21,12 @@ import de.dhbw.mealplanner.application.mealplan.RemoveRecipeFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveResponsibleFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealUseCase
-import de.dhbw.mealplanner.domain.mealplan.MealDate
 import de.dhbw.mealplanner.domain.mealplan.MealId
-import de.dhbw.mealplanner.domain.mealplan.MealPlan
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
 import de.dhbw.mealplanner.domain.mealplan.MealType
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import de.dhbw.mealplanner.domain.user.UserId
-import de.dhbw.mealplanner.domain.user.UserRepository
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -39,7 +36,6 @@ import java.util.UUID
 
 fun Route.mealPlanRoutes(
     mealPlanRepository: MealPlanRepository,
-    userRepository: UserRepository,
     assignRecipeToMealUseCase: AssignRecipeToMealUseCase,
     addParticipantToMealUseCase: AddParticipantToMealUseCase,
     removeParticipantFromMealUseCase: RemoveParticipantFromMealUseCase,
