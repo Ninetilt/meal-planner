@@ -7,6 +7,8 @@ import de.dhbw.mealplanner.api.dto.mealplan.CreateMealPlanRequest
 import de.dhbw.mealplanner.api.dto.mealplan.CreateMealRequest
 import de.dhbw.mealplanner.api.dto.mealplan.MealDebugResponse
 import de.dhbw.mealplanner.api.dto.mealplan.MealPlanDebugResponse
+import de.dhbw.mealplanner.api.dto.mealplan.MealPlanResponse
+import de.dhbw.mealplanner.api.dto.mealplan.MealResponse
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveParticipantRequest
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveResponsibleRequest
 import de.dhbw.mealplanner.application.common.IdResponse
@@ -19,6 +21,8 @@ import de.dhbw.mealplanner.application.mealplan.CreateMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveParticipantFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveRecipeFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveResponsibleFromMealUseCase
+import de.dhbw.mealplanner.application.mealplan.query.GetMealPlanUseCase
+import de.dhbw.mealplanner.application.mealplan.query.GetMealUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealDate
 import de.dhbw.mealplanner.domain.mealplan.MealId
 import de.dhbw.mealplanner.domain.mealplan.MealPlan
@@ -48,6 +52,8 @@ fun Route.mealPlanRoutes(
     createMealPlanUseCase: CreateMealPlanUseCase,
     createMealUseCase: CreateMealUseCase,
     removeRecipeFromMealUseCase: RemoveRecipeFromMealUseCase,
+    getMealPlanUseCase: GetMealPlanUseCase,
+    getMealUseCase: GetMealUseCase,
 ) {
     route("/mealplans") {
 
@@ -64,6 +70,34 @@ fun Route.mealPlanRoutes(
         get {
             val plans = mealPlanRepository.findAll()
             call.respond(plans.map { mapOf("id" to it.id.value.toString(), "meals" to it.getMeals().size) })
+        }
+
+        get("/{planId}") {
+            val planUuid = parseUuidParam(call.parameters["planId"])
+                ?: return@get call.respond(HttpStatusCode.BadRequest, "invalid planId")
+
+            val view = try {
+                getMealPlanUseCase.execute(MealPlanId(planUuid))
+            } catch (e: NotFoundError) {
+                return@get call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
+            }
+
+            val response = MealPlanResponse(
+                id = view.id,
+                mealCount = view.mealCount,
+                meals = view.meals.map {
+                    MealResponse(
+                        id = it.id,
+                        date = it.date,
+                        type = it.type,
+                        recipeId = it.recipeId,
+                        participantCount = it.participantCount,
+                        responsibleCount = it.responsibleCount
+                    )
+                }
+            )
+
+            call.respond(response)
         }
 
         post("/{planId}/meals") {
@@ -89,6 +123,34 @@ fun Route.mealPlanRoutes(
             }
 
             call.respond(HttpStatusCode.Created,IdResponse(mealId.value.toString()))
+        }
+
+        get("/{planId}/meals/{mealId}") {
+            val planUuid = parseUuidParam(call.parameters["planId"])
+                ?: return@get call.respond(HttpStatusCode.BadRequest, "invalid planId")
+
+            val mealUuid = parseUuidParam(call.parameters["mealId"])
+                ?: return@get call.respond(HttpStatusCode.BadRequest, "invalid mealId")
+
+            val view = try {
+                getMealUseCase.execute(
+                    mealPlanId = MealPlanId(planUuid),
+                    mealId = MealId(mealUuid)
+                )
+            } catch (e: NotFoundError) {
+                return@get call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
+            }
+
+            val response = MealResponse(
+                id = view.id,
+                date = view.date,
+                type = view.type,
+                recipeId = view.recipeId,
+                participantCount = view.participantCount,
+                responsibleCount = view.responsibleCount
+            )
+
+            call.respond(response)
         }
 
         post("/{planId}/meals/{mealId}/participants") {
@@ -229,7 +291,7 @@ fun Route.mealPlanRoutes(
         }
 
         // erndpunkt erstmal nur für debugging
-        get("/{planId}") {
+        /*get("/{planId}") {
             val planUuid = parseUuidParam(call.parameters["planId"])
                 ?: return@get call.respond(HttpStatusCode.BadRequest, "invalid planId")
 
@@ -254,7 +316,7 @@ fun Route.mealPlanRoutes(
             )
 
             call.respond(response)
-        }
+        }*/
     }
 }
 
