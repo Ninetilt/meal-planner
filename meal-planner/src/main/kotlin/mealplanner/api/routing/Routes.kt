@@ -13,6 +13,7 @@ import de.dhbw.mealplanner.application.mealplan.query.GetMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealUseCase
 import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
+import de.dhbw.mealplanner.application.recipe.query.GetRecipeUseCase
 import de.dhbw.mealplanner.application.shoppinglist.GenerateShoppingListUseCase
 import de.dhbw.mealplanner.application.user.CreateUserUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
@@ -40,13 +41,15 @@ fun Application.registerRoutes(
     removeIngredientFromRecipeUseCase: RemoveIngredientFromRecipeUseCase,
     getMealPlanUseCase: GetMealPlanUseCase,
     getMealUseCase: GetMealUseCase,
+    getRecipeUseCase: GetRecipeUseCase,
 ) {
     routing {
         recipeRoutes(
             recipeRepository,
             createRecipeUseCase,
             addIngredientToRecipeUseCase,
-            removeIngredientFromRecipeUseCase
+            removeIngredientFromRecipeUseCase,
+            getRecipeUseCase,
             )
         userRoutes(createUserUseCase)
         mealPlanRoutes(

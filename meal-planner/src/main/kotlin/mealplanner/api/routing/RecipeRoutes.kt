@@ -3,6 +3,8 @@ package de.dhbw.mealplanner.api.routing
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveIngredientRequest
 import de.dhbw.mealplanner.api.dto.recipe.AddIngredientRequest
 import de.dhbw.mealplanner.api.dto.recipe.CreateRecipeRequest
+import de.dhbw.mealplanner.api.dto.recipe.IngredientResponse
+import de.dhbw.mealplanner.api.dto.recipe.RecipeDetailsResponse
 import de.dhbw.mealplanner.api.dto.recipe.RecipeResponse
 import de.dhbw.mealplanner.application.common.IdResponse
 import de.dhbw.mealplanner.application.common.NotFoundError
@@ -10,6 +12,7 @@ import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.application.mealplan.RemoveIngredientFromRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
+import de.dhbw.mealplanner.application.recipe.query.GetRecipeUseCase
 import de.dhbw.mealplanner.domain.recipe.IngredientName
 import de.dhbw.mealplanner.domain.recipe.IngredientQuantity
 import de.dhbw.mealplanner.domain.recipe.Recipe
@@ -25,7 +28,8 @@ fun Route.recipeRoutes(
     recipeRepository: RecipeRepository,
     createRecipeUseCase: CreateRecipeUseCase,
     addIngredientToRecipeUseCase: AddIngredientToRecipeUseCase,
-    removeIngredientFromRecipeUseCase: RemoveIngredientFromRecipeUseCase
+    removeIngredientFromRecipeUseCase: RemoveIngredientFromRecipeUseCase,
+    getRecipeUseCase: GetRecipeUseCase
     ) {
 
     route("/recipes") {
@@ -40,6 +44,32 @@ fun Route.recipeRoutes(
             }
 
             call.respond(HttpStatusCode.Created, IdResponse(recipeId.value.toString()))
+        }
+
+        get("/{id}") {
+            val idParam = call.parameters["id"]
+            val uuid = runCatching {UUID.fromString(idParam) }.getOrNull()
+                ?: return@get call.respond(HttpStatusCode.BadRequest, "invalid recipe id")
+
+            val view = try {
+                getRecipeUseCase.execute(RecipeId(uuid))
+            } catch (e: NotFoundError) {
+                return@get call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
+            }
+
+            val response = RecipeDetailsResponse(
+                id = view.id,
+                title = view.title,
+                ingredients = view.ingredients.map {
+                    IngredientResponse(
+                        ingredient = it.ingredient,
+                        amount = it.amount,
+                        unit = it.unit
+                    )
+                },
+                preparationSteps = view.preparationSteps
+            )
+            call.respond(response)
         }
 
         post("/{id}/ingredients") {
