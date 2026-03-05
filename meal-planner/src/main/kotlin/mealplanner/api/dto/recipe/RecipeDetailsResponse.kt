@@ -7,5 +7,5 @@ data class RecipeDetailsResponse(
     val id: String,
     val title: String,
     val ingredients: List<IngredientResponse>,
-    val preparationSteps: List<String>
+    val description: String,
 )

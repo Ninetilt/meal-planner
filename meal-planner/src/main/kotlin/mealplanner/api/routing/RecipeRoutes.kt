@@ -79,7 +79,7 @@ fun Route.recipeRoutes(
                         unit = it.unit
                     )
                 },
-                preparationSteps = view.preparationSteps
+                description = view.description
             )
             call.respond(response)
         }

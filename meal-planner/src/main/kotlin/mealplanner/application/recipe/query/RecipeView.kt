@@ -4,5 +4,5 @@ data class RecipeView(
     val id: String,
     val title: String,
     val ingredients: List<IngredientView>,
-    val preparationSteps: List<String>
+    val description: String
 )

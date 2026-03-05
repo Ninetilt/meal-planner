@@ -4,7 +4,7 @@ class Recipe(
     val id: RecipeId,
     private var title: String,
     private val ingredients: MutableList<IngredientQuantity> = mutableListOf(),
-    private val preparationSteps: MutableList<String> = mutableListOf()
+    private var description: String = ""
 ) {
 
     fun changeTitle(newTitle: String) {
@@ -23,15 +23,13 @@ class Recipe(
         ingredients.removeIf { it.ingredient == ingredient }
     }
 
-    fun addPreparationStep(step: String) {
-        preparationSteps.add(step)
+    fun changeDescription(newDescription: String) {
+        description = newDescription
     }
 
-    fun getIngredients(): List<IngredientQuantity> =
-        ingredients.toList()
+    fun getIngredients(): List<IngredientQuantity> = ingredients.toList()
 
-    fun getPreparationSteps(): List<String> =
-        preparationSteps.toList()
+    fun getDescription(): String = description
 
     fun getTitle(): String = title
 }

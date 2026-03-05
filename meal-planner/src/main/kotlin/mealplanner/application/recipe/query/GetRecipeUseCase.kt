@@ -21,7 +21,7 @@ class GetRecipeUseCase(
                     unit = it.unit
                 )
             },
-            preparationSteps = recipe.getPreparationSteps()
+            description = recipe.getDescription()
         )
     }
 }
