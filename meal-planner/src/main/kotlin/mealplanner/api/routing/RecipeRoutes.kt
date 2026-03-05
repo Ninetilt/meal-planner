@@ -2,6 +2,7 @@ package de.dhbw.mealplanner.api.routing
 
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveIngredientRequest
 import de.dhbw.mealplanner.api.dto.recipe.AddIngredientRequest
+import de.dhbw.mealplanner.api.dto.recipe.ChangeDescriptionRequest
 import de.dhbw.mealplanner.api.dto.recipe.CreateRecipeRequest
 import de.dhbw.mealplanner.api.dto.recipe.IngredientResponse
 import de.dhbw.mealplanner.api.dto.recipe.RecipeDetailsResponse
@@ -11,6 +12,7 @@ import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.application.recipe.RemoveIngredientFromRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
+import de.dhbw.mealplanner.application.recipe.ChangeRecipeDescriptionUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetAllRecipesUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetRecipeUseCase
@@ -29,7 +31,8 @@ fun Route.recipeRoutes(
     addIngredientToRecipeUseCase: AddIngredientToRecipeUseCase,
     removeIngredientFromRecipeUseCase: RemoveIngredientFromRecipeUseCase,
     getRecipeUseCase: GetRecipeUseCase,
-    getAllRecipesUseCase: GetAllRecipesUseCase
+    getAllRecipesUseCase: GetAllRecipesUseCase,
+    changeRecipeDescriptionUseCase: ChangeRecipeDescriptionUseCase
     ) {
 
     route("/recipes") {
@@ -123,6 +126,27 @@ fun Route.recipeRoutes(
                 return@delete call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
             } catch (e: NotFoundError) {
                 return@delete call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
+            }
+
+            call.respond(HttpStatusCode.OK)
+        }
+
+        put("/{id}/description") {
+            val idParam = call.parameters["id"]
+            val uuid = runCatching { UUID.fromString(idParam) }.getOrNull()
+                ?: return@put call.respond(HttpStatusCode.BadRequest, "invalid recipe id")
+
+            val req = call.receive<ChangeDescriptionRequest>()
+
+            try {
+                changeRecipeDescriptionUseCase.execute(
+                    recipeId = RecipeId(uuid),
+                    description = req.description
+                )
+            } catch (e: ValidationError) {
+                return@put call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
+            } catch (e: NotFoundError) {
+                return@put call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
             }
 
             call.respond(HttpStatusCode.OK)
