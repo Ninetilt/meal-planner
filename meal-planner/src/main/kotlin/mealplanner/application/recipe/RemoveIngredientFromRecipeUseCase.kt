@@ -1,4 +1,4 @@
-package de.dhbw.mealplanner.application.mealplan
+package de.dhbw.mealplanner.application.recipe
 
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
