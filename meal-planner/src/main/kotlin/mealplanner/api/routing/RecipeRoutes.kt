@@ -127,27 +127,5 @@ fun Route.recipeRoutes(
                 }
             )
         }
-
-        get("/{id}") {
-            val idParam = call.parameters["id"]
-            val uuid = runCatching { UUID.fromString(idParam) }.getOrNull()
-            if (uuid == null) {
-                call.respond(HttpStatusCode.BadRequest, "invalid id")
-                return@get
-            }
-
-            val recipe = recipeRepository.findById(RecipeId(uuid))
-            if (recipe == null) {
-                call.respond(HttpStatusCode.NotFound)
-                return@get
-            }
-
-            call.respond(
-                RecipeResponse(
-                    id = recipe.id.value.toString(),
-                    title = recipe.getTitle()
-                )
-            )
-        }
     }
 }
