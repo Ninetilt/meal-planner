@@ -12,12 +12,12 @@ import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.application.mealplan.RemoveIngredientFromRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
+import de.dhbw.mealplanner.application.recipe.query.GetAllRecipesUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetRecipeUseCase
 import de.dhbw.mealplanner.domain.recipe.IngredientName
 import de.dhbw.mealplanner.domain.recipe.IngredientQuantity
 import de.dhbw.mealplanner.domain.recipe.Recipe
 import de.dhbw.mealplanner.domain.recipe.RecipeId
-import de.dhbw.mealplanner.domain.recipe.RecipeRepository
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.respond
@@ -25,11 +25,11 @@ import io.ktor.server.routing.*
 import java.util.UUID
 
 fun Route.recipeRoutes(
-    recipeRepository: RecipeRepository,
     createRecipeUseCase: CreateRecipeUseCase,
     addIngredientToRecipeUseCase: AddIngredientToRecipeUseCase,
     removeIngredientFromRecipeUseCase: RemoveIngredientFromRecipeUseCase,
-    getRecipeUseCase: GetRecipeUseCase
+    getRecipeUseCase: GetRecipeUseCase,
+    getAllRecipesUseCase: GetAllRecipesUseCase
     ) {
 
     route("/recipes") {
@@ -44,6 +44,18 @@ fun Route.recipeRoutes(
             }
 
             call.respond(HttpStatusCode.Created, IdResponse(recipeId.value.toString()))
+        }
+
+        get {
+            val views = getAllRecipesUseCase.execute()
+            call.respond(
+                views.map {
+                    RecipeResponse(
+                        id = it.id,
+                        title = it.title
+                    )
+                }
+            )
         }
 
         get("/{id}") {
@@ -114,18 +126,6 @@ fun Route.recipeRoutes(
             }
 
             call.respond(HttpStatusCode.OK)
-        }
-
-        get {
-            val recipes = recipeRepository.findAll()
-            call.respond(
-                recipes.map {
-                    RecipeResponse(
-                        id = it.id.value.toString(),
-                        title = it.getTitle()
-                    )
-                }
-            )
         }
     }
 }

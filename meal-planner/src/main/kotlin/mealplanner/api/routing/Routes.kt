@@ -13,17 +13,16 @@ import de.dhbw.mealplanner.application.mealplan.query.GetMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealUseCase
 import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
+import de.dhbw.mealplanner.application.recipe.query.GetAllRecipesUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetRecipeUseCase
 import de.dhbw.mealplanner.application.shoppinglist.GenerateShoppingListUseCase
 import de.dhbw.mealplanner.application.user.CreateUserUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
-import de.dhbw.mealplanner.domain.recipe.RecipeRepository
 import de.dhbw.mealplanner.domain.user.UserRepository
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
 fun Application.registerRoutes(
-    recipeRepository: RecipeRepository,
     mealPlanRepository: MealPlanRepository,
     userRepository: UserRepository,
     generateShoppingListUseCase: GenerateShoppingListUseCase,
@@ -42,19 +41,19 @@ fun Application.registerRoutes(
     getMealPlanUseCase: GetMealPlanUseCase,
     getMealUseCase: GetMealUseCase,
     getRecipeUseCase: GetRecipeUseCase,
+    getAllRecipesUseCase: GetAllRecipesUseCase,
 ) {
     routing {
         recipeRoutes(
-            recipeRepository,
             createRecipeUseCase,
             addIngredientToRecipeUseCase,
             removeIngredientFromRecipeUseCase,
             getRecipeUseCase,
+            getAllRecipesUseCase,
             )
         userRoutes(createUserUseCase)
         mealPlanRoutes(
             mealPlanRepository,
-            recipeRepository,
             userRepository,
             assignRecipeToMealUseCase,
             addParticipantToMealUseCase,

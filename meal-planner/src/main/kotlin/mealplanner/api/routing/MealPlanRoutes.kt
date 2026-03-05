@@ -28,7 +28,6 @@ import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
 import de.dhbw.mealplanner.domain.mealplan.MealType
 import de.dhbw.mealplanner.domain.recipe.RecipeId
-import de.dhbw.mealplanner.domain.recipe.RecipeRepository
 import de.dhbw.mealplanner.domain.user.UserId
 import de.dhbw.mealplanner.domain.user.UserRepository
 import io.ktor.http.*
@@ -40,7 +39,6 @@ import java.util.UUID
 
 fun Route.mealPlanRoutes(
     mealPlanRepository: MealPlanRepository,
-    recipeRepository: RecipeRepository,
     userRepository: UserRepository,
     assignRecipeToMealUseCase: AssignRecipeToMealUseCase,
     addParticipantToMealUseCase: AddParticipantToMealUseCase,

@@ -15,6 +15,7 @@ import de.dhbw.mealplanner.application.mealplan.query.GetMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealUseCase
 import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
+import de.dhbw.mealplanner.application.recipe.query.GetAllRecipesUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetRecipeUseCase
 import de.dhbw.mealplanner.application.user.CreateUserUseCase
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingListGenerator
@@ -66,9 +67,9 @@ fun Application.module() {
     val getMealPlanUseCase = GetMealPlanUseCase(mealPlanRepository)
     val getMealUseCase = GetMealUseCase(mealPlanRepository)
     val getRecipeUseCase = GetRecipeUseCase(recipeRepository)
+    val getAllRecipesUseCase = GetAllRecipesUseCase(recipeRepository)
 
     registerRoutes(
-        recipeRepository = recipeRepository,
         mealPlanRepository = mealPlanRepository,
         userRepository = userRepository,
         generateShoppingListUseCase = generateShoppingListUseCase,
@@ -87,5 +88,6 @@ fun Application.module() {
         getMealPlanUseCase = getMealPlanUseCase,
         getMealUseCase = getMealUseCase,
         getRecipeUseCase = getRecipeUseCase,
+        getAllRecipesUseCase = getAllRecipesUseCase,
     )
 }
