@@ -24,6 +24,7 @@ import de.dhbw.mealplanner.persistence.db.DatabaseFactory
 import de.dhbw.mealplanner.persistence.mealplan.InMemoryMealPlanRepository
 import de.dhbw.mealplanner.persistence.recipe.SqlRecipeRepository
 import de.dhbw.mealplanner.persistence.user.InMemoryUserRepository
+import de.dhbw.mealplanner.persistence.user.SqlUserRepository
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
@@ -50,8 +51,8 @@ fun Application.module() {
     DatabaseFactory.init()
 
     val recipeRepository = SqlRecipeRepository()
+    val userRepository = SqlUserRepository()
     val mealPlanRepository = InMemoryMealPlanRepository()
-    val userRepository = InMemoryUserRepository()
 
     val shoppingListGenerator = ShoppingListGenerator(recipeRepository)
 
