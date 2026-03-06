@@ -1,0 +1,21 @@
+package de.dhbw.mealplanner.persistence.db
+
+import de.dhbw.mealplanner.persistence.recipe.RecipeIngredientsTable
+import de.dhbw.mealplanner.persistence.recipe.RecipesTable
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+
+object DatabaseFactory {
+
+    fun init() {
+        Database.Companion.connect(
+            url = "jdbc:sqlite:mealplanner.db",
+            driver = "org.sqlite.JDBC"
+        )
+
+        transaction {
+            SchemaUtils.create(RecipesTable, RecipeIngredientsTable)
+        }
+    }
+}

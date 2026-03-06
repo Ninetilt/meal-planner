@@ -38,6 +38,18 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("io.mockk:mockk:1.13.8")
+
+    implementation("org.jetbrains.exposed:exposed-core:1.1.1")
+    implementation("org.jetbrains.exposed:exposed-jdbc:1.1.1")
+    implementation("org.jetbrains.exposed:exposed-dao:1.1.1")
+
+    implementation("org.xerial:sqlite-jdbc:3.50.3.0")
+
+    testImplementation("io.ktor:ktor-server-test-host")
+    testImplementation(kotlin("test"))
+    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("io.mockk:mockk:1.13.8")
 }
 
 tasks.test {

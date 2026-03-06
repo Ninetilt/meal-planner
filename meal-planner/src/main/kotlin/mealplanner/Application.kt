@@ -20,8 +20,9 @@ import de.dhbw.mealplanner.application.recipe.query.GetAllRecipesUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetRecipeUseCase
 import de.dhbw.mealplanner.application.user.CreateUserUseCase
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingListGenerator
+import de.dhbw.mealplanner.persistence.db.DatabaseFactory
 import de.dhbw.mealplanner.persistence.mealplan.InMemoryMealPlanRepository
-import de.dhbw.mealplanner.persistence.recipe.InMemoryRecipeRepository
+import de.dhbw.mealplanner.persistence.recipe.SqlRecipeRepository
 import de.dhbw.mealplanner.persistence.user.InMemoryUserRepository
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
@@ -46,7 +47,9 @@ fun Application.module() {
         )
     }
 
-    val recipeRepository = InMemoryRecipeRepository()
+    DatabaseFactory.init()
+
+    val recipeRepository = SqlRecipeRepository()
     val mealPlanRepository = InMemoryMealPlanRepository()
     val userRepository = InMemoryUserRepository()
 
