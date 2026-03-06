@@ -19,7 +19,7 @@ class RecipeTest {
             id = RecipeId(UUID.randomUUID()),
             title = "Pasta",
             ingredients = mutableListOf(),
-            preparationSteps = mutableListOf()
+            description = ""
         )
     }
 

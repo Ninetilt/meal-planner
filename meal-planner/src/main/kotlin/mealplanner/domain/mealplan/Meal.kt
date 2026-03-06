@@ -26,9 +26,13 @@ class Meal(
 
     fun removeParticipant(userId: UserId) {
         participants.remove(userId)
+        responsibleUsers.remove(userId)
     }
 
     fun assignResponsible(userId: UserId) {
+        require(participants.contains(userId)) {
+            "Only participants can be assigned as responsible"
+        }
         responsibleUsers.add(userId)
     }
 

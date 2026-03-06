@@ -2,9 +2,10 @@ package de.dhbw.mealplanner.api.routing
 
 import de.dhbw.mealplanner.api.dto.shoppinglist.ShoppingListItemResponse
 import de.dhbw.mealplanner.api.dto.shoppinglist.ShoppingListResponse
+import de.dhbw.mealplanner.application.common.NotFoundError
+import de.dhbw.mealplanner.application.common.ValidationError
+import de.dhbw.mealplanner.application.shoppinglist.GenerateShoppingListUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
-import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
-import de.dhbw.mealplanner.domain.shoppinglist.ShoppingListGenerator
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -12,8 +13,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 fun Route.shoppingRoutes(
-    mealPlanRepository: MealPlanRepository,
-    shoppingListGenerator: ShoppingListGenerator
+    generateShoppingListUseCase: GenerateShoppingListUseCase
 ) {
     route("/shoppinglist") {
         get {
@@ -30,21 +30,24 @@ fun Route.shoppingRoutes(
             val end = runCatching { LocalDate.parse(endParam) }.getOrNull()
                 ?: return@get call.respond(HttpStatusCode.BadRequest, "invalid end date")
 
-            val plan = mealPlanRepository.findById(MealPlanId(planUuid))
-                ?: return@get call.respond(HttpStatusCode.NotFound, "mealplan not found")
-
-            val list = shoppingListGenerator.generate(plan, start, end)
+            val shoppingList = try {
+                generateShoppingListUseCase.execute(MealPlanId(planUuid), start, end)
+            } catch (e: ValidationError) {
+                return@get call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
+            } catch (e: NotFoundError) {
+                return@get call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
+            }
 
             val response = ShoppingListResponse(
-                items = list.items.map {
+                items = shoppingList.items.map {
                     ShoppingListItemResponse(
                         ingredient = it.ingredient.value,
                         totalAmount = it.totalAmount,
                         unit = it.unit
                     )
                 },
-                recipesWithoutIngredients = list.recipesWithoutIngredients,
-                mealsWithoutParticipants = list.mealsWithoutParticipants
+                recipesWithoutIngredients = shoppingList.recipesWithoutIngredients,
+                mealsWithoutParticipants = shoppingList.mealsWithoutParticipants
             )
 
             call.respond(response)
