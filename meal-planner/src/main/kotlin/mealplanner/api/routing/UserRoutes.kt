@@ -19,7 +19,11 @@ fun Route.userRoutes(
             val req = call.receive<CreateUserRequest>()
 
             val id = try {
-                createUserUseCase.execute(req.name)
+                createUserUseCase.execute(
+                    name = req.name,
+                    email = req.email,
+                    password = req.password
+                )
             } catch (e: ValidationError) {
                 return@post call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
             }
