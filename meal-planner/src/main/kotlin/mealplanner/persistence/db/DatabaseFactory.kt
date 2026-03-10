@@ -1,5 +1,9 @@
 package de.dhbw.mealplanner.persistence.db
 
+import de.dhbw.mealplanner.persistence.mealplan.MealParticipantsTable
+import de.dhbw.mealplanner.persistence.mealplan.MealPlansTable
+import de.dhbw.mealplanner.persistence.mealplan.MealResponsiblesTable
+import de.dhbw.mealplanner.persistence.mealplan.MealsTable
 import de.dhbw.mealplanner.persistence.recipe.RecipeIngredientsTable
 import de.dhbw.mealplanner.persistence.recipe.RecipesTable
 import de.dhbw.mealplanner.persistence.user.UsersTable
@@ -19,7 +23,11 @@ object DatabaseFactory {
             SchemaUtils.create(
                 RecipesTable,
                 RecipeIngredientsTable,
-                UsersTable
+                UsersTable,
+                MealPlansTable,
+                MealsTable,
+                MealParticipantsTable,
+                MealResponsiblesTable
             )
         }
     }
