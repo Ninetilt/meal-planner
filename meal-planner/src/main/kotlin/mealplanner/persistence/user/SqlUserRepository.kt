@@ -1,5 +1,6 @@
 package de.dhbw.mealplanner.persistence.user
 
+import de.dhbw.mealplanner.domain.user.EmailAddress
 import de.dhbw.mealplanner.domain.user.User
 import de.dhbw.mealplanner.domain.user.UserId
 import de.dhbw.mealplanner.domain.user.UserRepository
@@ -22,10 +23,14 @@ class SqlUserRepository : UserRepository {
                 UsersTable.insert {
                     it[id] = user.id.value
                     it[name] = user.getName()
+                    it[email] = user.getEmail().value
+                    it[password] = user.getPassword()
                 }
             } else {
                 UsersTable.update({ UsersTable.id eq user.id.value }) {
                     it[name] = user.getName()
+                    it[email] = user.getEmail().value
+                    it[password] = user.getPassword()
                 }
             }
         }
@@ -40,7 +45,25 @@ class SqlUserRepository : UserRepository {
 
             User(
                 id = UserId(row[UsersTable.id].value),
-                name = row[UsersTable.name]
+                name = row[UsersTable.name],
+                email = EmailAddress(row[UsersTable.email]),
+                password = row[UsersTable.password]
+            )
+        }
+    }
+
+    override fun findByEmail(email: EmailAddress): User? {
+        return transaction {
+            val row = UsersTable.selectAll()
+                .where { UsersTable.email eq email.value }
+                .singleOrNull()
+                ?: return@transaction null
+
+            User(
+                id = UserId(row[UsersTable.id].value),
+                name = row[UsersTable.name],
+                email = EmailAddress(row[UsersTable.email]),
+                password = row[UsersTable.password]
             )
         }
     }
@@ -51,7 +74,9 @@ class SqlUserRepository : UserRepository {
                 .map { row ->
                     User(
                         id = UserId(row[UsersTable.id].value),
-                        name = row[UsersTable.name]
+                        name = row[UsersTable.name],
+                        email = EmailAddress(row[UsersTable.email]),
+                        password = row[UsersTable.password]
                     )
                 }
         }
