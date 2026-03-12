@@ -6,6 +6,8 @@ interface UserRepository {
 
     fun findById(id: UserId): User?
 
+    fun findByEmail(email: EmailAddress): User?
+
     fun findAll(): List<User>
 
     fun delete(id: UserId)
