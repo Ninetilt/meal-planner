@@ -12,6 +12,7 @@ import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.application.recipe.RemoveIngredientFromRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
+import de.dhbw.mealplanner.application.recipe.ChangeIngredientQuantityUseCase
 import de.dhbw.mealplanner.application.recipe.ChangeRecipeDescriptionUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetAllRecipesUseCase
@@ -32,7 +33,8 @@ fun Route.recipeRoutes(
     removeIngredientFromRecipeUseCase: RemoveIngredientFromRecipeUseCase,
     getRecipeUseCase: GetRecipeUseCase,
     getAllRecipesUseCase: GetAllRecipesUseCase,
-    changeRecipeDescriptionUseCase: ChangeRecipeDescriptionUseCase
+    changeRecipeDescriptionUseCase: ChangeRecipeDescriptionUseCase,
+    changeIngredientQuantityUseCase: ChangeIngredientQuantityUseCase,
     ) {
 
     route("/recipes") {
@@ -108,6 +110,29 @@ fun Route.recipeRoutes(
             }
 
             call.respond(HttpStatusCode.Created)
+        }
+
+        put("/{id}/ingredients") {
+            val idParam = call.parameters["id"]
+            val uuid = runCatching { UUID.fromString(idParam) }.getOrNull()
+                ?: return@put call.respond(HttpStatusCode.BadRequest, "invalid recipe id")
+
+            val req = call.receive<de.dhbw.mealplanner.api.dto.recipe.ChangeIngredientQuantityRequest>()
+
+            try {
+                changeIngredientQuantityUseCase.execute(
+                    recipeId = RecipeId(uuid),
+                    ingredient = req.ingredient,
+                    amount = req.amount,
+                    unit = req.unit
+                )
+            } catch (e: ValidationError) {
+                return@put call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
+            } catch (e: NotFoundError) {
+                return@put call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
+            }
+
+            call.respond(io.ktor.http.HttpStatusCode.OK)
         }
 
         delete("/{id}/ingredients") {

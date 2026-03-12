@@ -14,6 +14,7 @@ import de.dhbw.mealplanner.application.mealplan.RemoveResponsibleFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealUseCase
 import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
+import de.dhbw.mealplanner.application.recipe.ChangeIngredientQuantityUseCase
 import de.dhbw.mealplanner.application.recipe.ChangeRecipeDescriptionUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetAllRecipesUseCase
@@ -73,6 +74,7 @@ fun Application.module() {
     val getRecipeUseCase = GetRecipeUseCase(recipeRepository)
     val getAllRecipesUseCase = GetAllRecipesUseCase(recipeRepository)
     val changeRecipeDescriptionUseCase = ChangeRecipeDescriptionUseCase(recipeRepository)
+    val changeIngredientQuantityUseCase = ChangeIngredientQuantityUseCase(recipeRepository)
 
     registerRoutes(
         mealPlanRepository = mealPlanRepository,
@@ -94,5 +96,6 @@ fun Application.module() {
         getRecipeUseCase = getRecipeUseCase,
         getAllRecipesUseCase = getAllRecipesUseCase,
         changeRecipeDescriptionUseCase = changeRecipeDescriptionUseCase,
+        changeIngredientQuantityUseCase = changeIngredientQuantityUseCase,
     )
 }
