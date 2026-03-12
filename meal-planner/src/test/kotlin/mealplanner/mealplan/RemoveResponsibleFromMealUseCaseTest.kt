@@ -6,6 +6,7 @@ import de.dhbw.mealplanner.domain.mealplan.MealPlan
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
 import de.dhbw.mealplanner.domain.mealplan.MealType
+import de.dhbw.mealplanner.domain.user.EmailAddress
 import de.dhbw.mealplanner.domain.user.User
 import de.dhbw.mealplanner.domain.user.UserId
 import de.dhbw.mealplanner.domain.user.UserRepository
@@ -33,7 +34,10 @@ class RemoveResponsibleFromMealUseCaseTest {
         meal.assignResponsible(userId)
 
         every { mealPlanRepository.findById(planId) } returns plan
-        every { userRepository.findById(userId) } returns User(userId, "Max")
+        every { userRepository.findById(userId) } returns User(
+            userId, "Max",
+            EmailAddress("max@mealplanner"),
+            "123")
         every { mealPlanRepository.save(any()) } just Runs
 
         useCase.execute(planId, meal.id, userId)
