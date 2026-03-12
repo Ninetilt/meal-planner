@@ -2,15 +2,16 @@ package de.dhbw.mealplanner.domain.shoppinglist
 
 import de.dhbw.mealplanner.domain.mealplan.MealPlan
 import de.dhbw.mealplanner.domain.recipe.IngredientName
+import de.dhbw.mealplanner.domain.recipe.Recipe
+import de.dhbw.mealplanner.domain.recipe.RecipeId
 import de.dhbw.mealplanner.domain.recipe.RecipeRepository
 import java.time.LocalDate
 
-class ShoppingListGenerator(
-    private val recipeRepository: RecipeRepository
-) {
+class ShoppingListGenerator {
 
     fun generate(
         mealPlan: MealPlan,
+        recipesById: Map<RecipeId, Recipe>,
         startDate: LocalDate,
         endDate: LocalDate
     ): ShoppingList {
@@ -28,7 +29,7 @@ class ShoppingListGenerator(
         for (meal in relevantMeals) {
 
             val recipeId = meal.recipeId ?: continue
-            val recipe = recipeRepository.findById(recipeId) ?: continue
+            val recipe = recipesById[recipeId] ?: continue
 
             val portions = meal.portionCount()
             if (portions <= 0) {
@@ -44,7 +45,6 @@ class ShoppingListGenerator(
             }
 
             for (ingredientQuantity in ingredients) {
-
                 val key = Pair(
                     ingredientQuantity.ingredient.value,
                     ingredientQuantity.unit

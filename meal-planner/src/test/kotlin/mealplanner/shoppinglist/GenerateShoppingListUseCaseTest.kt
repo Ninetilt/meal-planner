@@ -3,9 +3,14 @@ package de.dhbw.mealplanner.shoppinglist
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.application.shoppinglist.GenerateShoppingListUseCase
+import de.dhbw.mealplanner.domain.mealplan.MealDate
 import de.dhbw.mealplanner.domain.mealplan.MealPlan
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
+import de.dhbw.mealplanner.domain.mealplan.MealType
+import de.dhbw.mealplanner.domain.recipe.Recipe
+import de.dhbw.mealplanner.domain.recipe.RecipeId
+import de.dhbw.mealplanner.domain.recipe.RecipeRepository
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingList
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingListGenerator
 import io.mockk.every
@@ -19,8 +24,13 @@ import java.util.UUID
 class GenerateShoppingListUseCaseTest {
 
     private val mealPlanRepository = mockk<MealPlanRepository>()
+    private val recipeRepository = mockk<RecipeRepository>()
     private val generator = mockk<ShoppingListGenerator>()
-    private val useCase = GenerateShoppingListUseCase(mealPlanRepository, generator)
+    private val useCase = GenerateShoppingListUseCase(
+        mealPlanRepository,
+        recipeRepository,
+        generator
+    )
 
     @Test
     fun throwValidationErrorWhenEndDateisSmallerThanStartDate() {
@@ -46,24 +56,47 @@ class GenerateShoppingListUseCaseTest {
         }
     }
 
+
     @Test
-    fun returnMealPlanIfExists() {
-        val id = MealPlanId(UUID.randomUUID())
-        val plan = MealPlan(id)
-        val expected = ShoppingList(
-            items = emptyList(),
-            recipesWithoutIngredients = emptyList(),
-            mealsWithoutParticipants = 0
+    fun loadRecipeAndDelegateToGenerator() {
+        val planId = MealPlanId(UUID.randomUUID())
+        val recipeId = RecipeId(UUID.randomUUID())
+
+        val mealPlan = MealPlan(planId)
+        val meal = mealPlan.createMeal(
+            MealDate(LocalDate.of(2026, 1, 1)), MealType.LUNCH)
+        meal.recipeId = recipeId
+
+        val recipe = Recipe(recipeId, "Pasta")
+        val expected = ShoppingList(emptyList(), emptyList(), 0)
+
+        every { mealPlanRepository.findById(planId) } returns mealPlan
+        every { recipeRepository.findById(recipeId) } returns recipe
+        every {
+            generator.generate(
+                mealPlan,
+                mapOf(recipeId to recipe),
+                LocalDate.of(2026, 1, 1),
+                LocalDate.of(2026, 1, 7)
+            )
+        } returns expected
+
+        val result = useCase.execute(
+            planId,
+            LocalDate.of(2026, 1, 1),
+            LocalDate.of(2026, 1, 7)
         )
 
-        every { mealPlanRepository.findById(id) } returns plan
-        every { generator.generate(plan, any(), any()) } returns expected
-
-        val result = useCase.execute(id, LocalDate.of(2026, 3, 3),
-            LocalDate.of(2026, 3, 9))
-
         assertSame(expected, result)
-        verify(exactly = 1) { generator.generate(plan, LocalDate.of(2026, 3, 3),
-            LocalDate.of(2026, 3, 9)) }
+
+        verify(exactly = 1) { recipeRepository.findById(recipeId) }
+        verify(exactly = 1) {
+            generator.generate(
+                mealPlan,
+                mapOf(recipeId to recipe),
+                LocalDate.of(2026, 1, 1),
+                LocalDate.of(2026, 1, 7)
+            )
+        }
     }
 }
