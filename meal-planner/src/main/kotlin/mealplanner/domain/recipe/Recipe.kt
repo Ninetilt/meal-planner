@@ -23,6 +23,23 @@ class Recipe(
         ingredients.removeIf { it.ingredient == ingredient }
     }
 
+    fun changeIngredientQuantity(
+        ingredient: IngredientName,
+        newAmount: Double,
+        newUnit: String
+    ) {
+        val index = ingredients.indexOfFirst { it.ingredient == ingredient }
+        if (index == -1) {
+            throw IllegalArgumentException("Ingredient does not exist")
+        }
+
+        ingredients[index] = IngredientQuantity(
+            ingredient = ingredient,
+            amount = newAmount,
+            unit = newUnit
+        )
+    }
+
     fun changeDescription(newDescription: String) {
         description = newDescription
     }
