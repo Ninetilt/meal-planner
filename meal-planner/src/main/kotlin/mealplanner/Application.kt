@@ -53,9 +53,9 @@ fun Application.module() {
     val userRepository = SqlUserRepository()
     val mealPlanRepository = SqlMealPlanRepository()
 
-    val shoppingListGenerator = ShoppingListGenerator(recipeRepository)
+    val shoppingListGenerator = ShoppingListGenerator()
 
-    val generateShoppingListUseCase = GenerateShoppingListUseCase(mealPlanRepository, shoppingListGenerator)
+    val generateShoppingListUseCase = GenerateShoppingListUseCase(mealPlanRepository, recipeRepository, shoppingListGenerator)
     val assignRecipeToMealUseCase = AssignRecipeToMealUseCase(mealPlanRepository, recipeRepository)
     val addParticipantToMealUseCase = AddParticipantToMealUseCase(mealPlanRepository, userRepository)
     val removeParticipantFromMealUseCase = RemoveParticipantFromMealUseCase(mealPlanRepository, userRepository)
