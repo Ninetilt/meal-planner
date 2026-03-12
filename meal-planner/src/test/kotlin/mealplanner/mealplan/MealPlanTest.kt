@@ -77,6 +77,7 @@ class MealPlanTest {
 
         val userId = UserId(UUID.randomUUID())
 
+        meal.addParticipant(userId)
         meal.assignResponsible(userId)
 
         assertTrue(meal.getResponsibleUsers().contains(userId))
