@@ -10,6 +10,7 @@ import de.dhbw.mealplanner.api.dto.mealplan.MealPlanResponse
 import de.dhbw.mealplanner.api.dto.mealplan.MealResponse
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveParticipantRequest
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveResponsibleRequest
+import de.dhbw.mealplanner.api.dto.mealplan.RemoveUserFromMealPlanRequest
 import de.dhbw.mealplanner.application.common.IdResponse
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
@@ -22,6 +23,7 @@ import de.dhbw.mealplanner.application.mealplan.CreateMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveParticipantFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveRecipeFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveResponsibleFromMealUseCase
+import de.dhbw.mealplanner.application.mealplan.RemoveUserFromMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealId
@@ -49,7 +51,8 @@ fun Route.mealPlanRoutes(
     removeRecipeFromMealUseCase: RemoveRecipeFromMealUseCase,
     getMealPlanUseCase: GetMealPlanUseCase,
     getMealUseCase: GetMealUseCase,
-    addUserToMealPlanUseCase: AddUserToMealPlanUseCase
+    addUserToMealPlanUseCase: AddUserToMealPlanUseCase,
+    removeUserFromMealPlanUseCase: RemoveUserFromMealPlanUseCase
 ) {
     route("/mealplans") {
 
@@ -149,6 +152,29 @@ fun Route.mealPlanRoutes(
                 )
             } catch (e: NotFoundError) {
                 return@post call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
+            }
+
+            call.respond(HttpStatusCode.OK)
+        }
+
+        delete("/{planId}/members") {
+            val planUuid = parseUuidParam(call.parameters["planId"])
+                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid planId")
+
+            val req = call.receive<RemoveUserFromMealPlanRequest>()
+
+            val userUuid = parseUuidParam(req.userId)
+                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid userId")
+
+            try {
+                removeUserFromMealPlanUseCase.execute(
+                    mealPlanId = MealPlanId(planUuid),
+                    userId = UserId(userUuid)
+                )
+            } catch (e: ValidationError) {
+                return@delete call.respond(HttpStatusCode.BadRequest,e.message ?: "validation error")
+            } catch (e: NotFoundError) {
+                return@delete call.respond(HttpStatusCode.NotFound,e.message ?: "not found")
             }
 
             call.respond(HttpStatusCode.OK)
