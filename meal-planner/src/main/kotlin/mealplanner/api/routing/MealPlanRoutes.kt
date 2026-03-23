@@ -1,6 +1,7 @@
 package de.dhbw.mealplanner.api.routing
 
 import de.dhbw.mealplanner.api.dto.mealplan.AddParticipantRequest
+import de.dhbw.mealplanner.api.dto.mealplan.AddUserToMealPlanRequest
 import de.dhbw.mealplanner.api.dto.mealplan.AssignRecipeRequest
 import de.dhbw.mealplanner.api.dto.mealplan.AssignResponsibleRequest
 import de.dhbw.mealplanner.api.dto.mealplan.CreateMealPlanRequest
@@ -13,6 +14,7 @@ import de.dhbw.mealplanner.application.common.IdResponse
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.application.mealplan.AddParticipantToMealUseCase
+import de.dhbw.mealplanner.application.mealplan.AddUserToMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignResponsibleToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.CreateMealPlanUseCase
@@ -47,6 +49,7 @@ fun Route.mealPlanRoutes(
     removeRecipeFromMealUseCase: RemoveRecipeFromMealUseCase,
     getMealPlanUseCase: GetMealPlanUseCase,
     getMealUseCase: GetMealUseCase,
+    addUserToMealPlanUseCase: AddUserToMealPlanUseCase
 ) {
     route("/mealplans") {
 
@@ -128,6 +131,27 @@ fun Route.mealPlanRoutes(
             }
 
             call.respond(HttpStatusCode.Created,IdResponse(mealId.value.toString()))
+        }
+
+        post("/{planId}/members") {
+            val planUuid = parseUuidParam(call.parameters["planId"])
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid planId")
+
+            val req = call.receive<AddUserToMealPlanRequest>()
+
+            val userUuid = parseUuidParam(req.userId)
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid userId")
+
+            try {
+                addUserToMealPlanUseCase.execute(
+                    mealPlanId = MealPlanId(planUuid),
+                    userId = UserId(userUuid)
+                )
+            } catch (e: NotFoundError) {
+                return@post call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
+            }
+
+            call.respond(HttpStatusCode.OK)
         }
 
         get("/{planId}/meals/{mealId}") {

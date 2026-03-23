@@ -1,6 +1,7 @@
 package de.dhbw.mealplanner.api.routing
 
 import de.dhbw.mealplanner.application.mealplan.AddParticipantToMealUseCase
+import de.dhbw.mealplanner.application.mealplan.AddUserToMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignResponsibleToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.CreateMealPlanUseCase
@@ -44,6 +45,7 @@ fun Application.registerRoutes(
     getAllRecipesUseCase: GetAllRecipesUseCase,
     changeRecipeDescriptionUseCase: ChangeRecipeDescriptionUseCase,
     changeIngredientQuantityUseCase: ChangeIngredientQuantityUseCase,
+    addUserToMealPlanUseCase: AddUserToMealPlanUseCase
 ) {
     routing {
         recipeRoutes(
@@ -68,6 +70,7 @@ fun Application.registerRoutes(
             removeRecipeFromMealUseCase,
             getMealPlanUseCase,
             getMealUseCase,
+            addUserToMealPlanUseCase
             )
         shoppingRoutes(generateShoppingListUseCase)
     }
