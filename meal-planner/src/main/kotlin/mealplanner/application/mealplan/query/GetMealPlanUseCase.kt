@@ -24,6 +24,9 @@ class GetMealPlanUseCase(
 
         return MealPlanView(
             id = plan.id.value.toString(),
+            name = plan.getName(),
+            createdBy = plan.createdBy.value.toString(),
+            memberCount = plan.getMembers().size,
             mealCount = meals.size,
             meals = meals
         )

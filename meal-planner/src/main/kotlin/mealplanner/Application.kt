@@ -64,7 +64,7 @@ fun Application.module() {
     val removeResponsibleFromMealUseCase = RemoveResponsibleFromMealUseCase(mealPlanRepository, userRepository)
     val createUserUseCase = CreateUserUseCase(userRepository)
     val createRecipeUseCase = CreateRecipeUseCase(recipeRepository)
-    val createMealPlanUseCase = CreateMealPlanUseCase(mealPlanRepository)
+    val createMealPlanUseCase = CreateMealPlanUseCase(mealPlanRepository, userRepository)
     val createMealUseCase = CreateMealUseCase(mealPlanRepository)
     val removeRecipeFromMealUseCase = RemoveRecipeFromMealUseCase(mealPlanRepository)
     val addIngredientToRecipeUseCase = AddIngredientToRecipeUseCase(recipeRepository)

@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateMealPlanRequest(
-    val name: String? = null
+    val name: String,
+    val createdBy: String
 )

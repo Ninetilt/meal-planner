@@ -11,6 +11,7 @@ import de.dhbw.mealplanner.api.dto.mealplan.RemoveParticipantRequest
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveResponsibleRequest
 import de.dhbw.mealplanner.application.common.IdResponse
 import de.dhbw.mealplanner.application.common.NotFoundError
+import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.application.mealplan.AddParticipantToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignResponsibleToMealUseCase
@@ -50,13 +51,22 @@ fun Route.mealPlanRoutes(
     route("/mealplans") {
 
         post {
-            call.receive<CreateMealPlanRequest>()
+            val req = call.receive<CreateMealPlanRequest>()
+
+            val creatorUuid = parseUuidParam(req.createdBy)
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid createdBy")
+
             val mealPlanId = try {
-                createMealPlanUseCase.execute()
-            } catch (e: Exception) {
-                return@post call.respond(HttpStatusCode.BadRequest, "cannot create mealplan")
+                createMealPlanUseCase.execute(
+                    name = req.name,
+                    createdBy = UserId(creatorUuid)
+                )
+            } catch (e: ValidationError) {
+                return@post call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
+            } catch (e: NotFoundError) {
+                return@post call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
             }
-            call.respond(HttpStatusCode.Created, IdResponse(mealPlanId.value.toString()))
+            call.respond(HttpStatusCode.Created,IdResponse(mealPlanId.value.toString()))
         }
 
         get {
@@ -76,6 +86,9 @@ fun Route.mealPlanRoutes(
 
             val response = MealPlanResponse(
                 id = view.id,
+                name = view.name,
+                createdBy = view.createdBy,
+                memberCount = view.memberCount,
                 mealCount = view.mealCount,
                 meals = view.meals.map {
                     MealResponse(
