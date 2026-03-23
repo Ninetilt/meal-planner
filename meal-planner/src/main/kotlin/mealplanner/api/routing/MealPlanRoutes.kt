@@ -6,6 +6,7 @@ import de.dhbw.mealplanner.api.dto.mealplan.AssignRecipeRequest
 import de.dhbw.mealplanner.api.dto.mealplan.AssignResponsibleRequest
 import de.dhbw.mealplanner.api.dto.mealplan.CreateMealPlanRequest
 import de.dhbw.mealplanner.api.dto.mealplan.CreateMealRequest
+import de.dhbw.mealplanner.api.dto.mealplan.MealPlanListItemResponse
 import de.dhbw.mealplanner.api.dto.mealplan.MealPlanResponse
 import de.dhbw.mealplanner.api.dto.mealplan.MealResponse
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveParticipantRequest
@@ -24,6 +25,7 @@ import de.dhbw.mealplanner.application.mealplan.RemoveParticipantFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveRecipeFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveResponsibleFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveUserFromMealPlanUseCase
+import de.dhbw.mealplanner.application.mealplan.query.GetAllMealPlansUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealId
@@ -52,7 +54,8 @@ fun Route.mealPlanRoutes(
     getMealPlanUseCase: GetMealPlanUseCase,
     getMealUseCase: GetMealUseCase,
     addUserToMealPlanUseCase: AddUserToMealPlanUseCase,
-    removeUserFromMealPlanUseCase: RemoveUserFromMealPlanUseCase
+    removeUserFromMealPlanUseCase: RemoveUserFromMealPlanUseCase,
+    getAllMealPlansUseCase: GetAllMealPlansUseCase
 ) {
     route("/mealplans") {
 
@@ -76,8 +79,18 @@ fun Route.mealPlanRoutes(
         }
 
         get {
-            val plans = mealPlanRepository.findAll()
-            call.respond(plans.map { mapOf("id" to it.id.value.toString(), "meals" to it.getMeals().size) })
+            val mealPlans = getAllMealPlansUseCase.execute()
+            call.respond(
+                mealPlans.map {
+                    MealPlanListItemResponse(
+                        id = it.id,
+                        name = it.name,
+                        createdBy = it.createdBy,
+                        memberCount = it.memberCount,
+                        mealCount = it.mealCount
+                    )
+                }
+            )
         }
 
         get("/{planId}") {
