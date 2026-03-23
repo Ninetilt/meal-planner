@@ -1,6 +1,7 @@
 package de.dhbw.mealplanner.persistence.db
 
 import de.dhbw.mealplanner.persistence.mealplan.MealParticipantsTable
+import de.dhbw.mealplanner.persistence.mealplan.MealPlanMembersTable
 import de.dhbw.mealplanner.persistence.mealplan.MealPlansTable
 import de.dhbw.mealplanner.persistence.mealplan.MealResponsiblesTable
 import de.dhbw.mealplanner.persistence.mealplan.MealsTable
@@ -25,6 +26,7 @@ object DatabaseFactory {
                 RecipeIngredientsTable,
                 UsersTable,
                 MealPlansTable,
+                MealPlanMembersTable,
                 MealsTable,
                 MealParticipantsTable,
                 MealResponsiblesTable
