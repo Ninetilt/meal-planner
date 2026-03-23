@@ -13,6 +13,7 @@ import de.dhbw.mealplanner.application.mealplan.RemoveResponsibleFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveUserFromMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetAllMealPlansUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealPlanUseCase
+import de.dhbw.mealplanner.application.mealplan.query.GetMealPlansForUserUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealUseCase
 import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.ChangeIngredientQuantityUseCase
@@ -49,7 +50,8 @@ fun Application.registerRoutes(
     changeIngredientQuantityUseCase: ChangeIngredientQuantityUseCase,
     addUserToMealPlanUseCase: AddUserToMealPlanUseCase,
     removeUserFromMealPlanUseCase: RemoveUserFromMealPlanUseCase,
-    getAllMealPlansUseCase: GetAllMealPlansUseCase
+    getAllMealPlansUseCase: GetAllMealPlansUseCase,
+    getMealPlansForUserUseCase: GetMealPlansForUserUseCase
 ) {
     routing {
         recipeRoutes(
@@ -61,7 +63,10 @@ fun Application.registerRoutes(
             changeRecipeDescriptionUseCase,
             changeIngredientQuantityUseCase,
             )
-        userRoutes(createUserUseCase)
+        userRoutes(
+            createUserUseCase,
+            getMealPlansForUserUseCase
+        )
         mealPlanRoutes(
             mealPlanRepository,
             assignRecipeToMealUseCase,

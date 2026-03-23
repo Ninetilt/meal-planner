@@ -359,6 +359,3 @@ fun Route.mealPlanRoutes(
         }
     }
 }
-
-private fun parseUuidParam(value: String?): UUID? =
-    runCatching { UUID.fromString(value) }.getOrNull()
