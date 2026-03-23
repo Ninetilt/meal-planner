@@ -36,6 +36,8 @@ class MealPlan(
         }
     }
 
+    fun isMember(userId: UserId): Boolean = members.contains(userId)
+
     fun getMembers(): Set<UserId> = members.toSet()
 
     fun getName(): String = name
