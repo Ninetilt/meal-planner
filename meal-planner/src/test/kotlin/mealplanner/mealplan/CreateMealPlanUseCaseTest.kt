@@ -24,7 +24,7 @@ class CreateMealPlanUseCaseTest {
     private val useCase = CreateMealPlanUseCase(mealPlanRepository, userRepository)
 
     @Test
-    fun `creates meal plan when input is valid`() {
+    fun createMealPlanWhenInputIsValid() {
         val userId = UserId(UUID.randomUUID())
         val user = User(
             id = userId,
@@ -46,7 +46,7 @@ class CreateMealPlanUseCaseTest {
     }
 
     @Test
-    fun `throws ValidationError when name is blank`() {
+    fun throwErrorWhenNameIsBlank() {
         val userId = UserId(UUID.randomUUID())
 
         val exception = assertThrows(ValidationError::class.java) {
@@ -61,7 +61,7 @@ class CreateMealPlanUseCaseTest {
     }
 
     @Test
-    fun `throws NotFoundError when creator does not exist`() {
+    fun throwNotFoundWhenCreatorDoesNotExist() {
         val userId = UserId(UUID.randomUUID())
 
         every { userRepository.findById(userId) } returns null
