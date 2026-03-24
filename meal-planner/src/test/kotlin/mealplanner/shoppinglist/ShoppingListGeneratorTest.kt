@@ -8,6 +8,7 @@ import de.dhbw.mealplanner.domain.recipe.IngredientName
 import de.dhbw.mealplanner.domain.recipe.IngredientQuantity
 import de.dhbw.mealplanner.domain.recipe.Recipe
 import de.dhbw.mealplanner.domain.recipe.RecipeId
+import de.dhbw.mealplanner.domain.shoppinglist.DefaultShoppingListCalculationStrategy
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingListGenerator
 import de.dhbw.mealplanner.domain.user.UserId
 import org.junit.jupiter.api.Assertions.*
@@ -22,7 +23,9 @@ class ShoppingListGeneratorTest {
 
     @BeforeEach
     fun setUp() {
-        generator = ShoppingListGenerator()
+        generator = ShoppingListGenerator(
+            DefaultShoppingListCalculationStrategy()
+        )
         mealPlan = MealPlan(
             id = MealPlanId(UUID.randomUUID()),
             name = "Plan",
