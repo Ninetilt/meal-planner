@@ -23,7 +23,11 @@ class ShoppingListGeneratorTest {
     @BeforeEach
     fun setUp() {
         generator = ShoppingListGenerator()
-        mealPlan = MealPlan(MealPlanId(UUID.randomUUID()))
+        mealPlan = MealPlan(
+            id = MealPlanId(UUID.randomUUID()),
+            name = "Plan",
+            createdBy = UserId(UUID.randomUUID()),
+        )
     }
 
     @Test

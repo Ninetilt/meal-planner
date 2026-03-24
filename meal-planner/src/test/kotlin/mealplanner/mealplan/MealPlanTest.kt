@@ -18,7 +18,9 @@ class MealPlanTest {
     @BeforeEach
     fun setUp() {
         mealPlan = MealPlan(
-            id = MealPlanId(UUID.randomUUID())
+            id = MealPlanId(UUID.randomUUID()),
+            name = "Test Plan",
+            createdBy = UserId(UUID.randomUUID())
         )
     }
 

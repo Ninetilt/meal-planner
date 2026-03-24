@@ -27,7 +27,11 @@ class RemoveParticipantFromMealUseCaseTest {
         val planId = MealPlanId(UUID.randomUUID())
         val userId = UserId(UUID.randomUUID())
 
-        val plan = MealPlan(planId)
+        val plan = MealPlan(
+            id = planId,
+            name = "Plan",
+            createdBy = UserId(UUID.randomUUID()),
+        )
         val meal = plan.createMeal(MealDate(LocalDate.of(2026, 3, 3)),
             MealType.LUNCH)
         meal.addParticipant(userId)

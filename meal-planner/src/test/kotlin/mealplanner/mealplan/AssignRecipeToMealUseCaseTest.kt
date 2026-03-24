@@ -11,6 +11,7 @@ import de.dhbw.mealplanner.domain.mealplan.MealType
 import de.dhbw.mealplanner.domain.recipe.Recipe
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import de.dhbw.mealplanner.domain.recipe.RecipeRepository
+import de.dhbw.mealplanner.domain.user.UserId
 import io.mockk.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -28,7 +29,11 @@ class AssignRecipeToMealUseCaseTest {
         val planId = MealPlanId(UUID.randomUUID())
         val recipeId = RecipeId(UUID.randomUUID())
 
-        val plan = MealPlan(planId)
+        val plan = MealPlan(
+            id = planId,
+            name = "Plan",
+            createdBy = UserId(UUID.randomUUID()),
+        )
         val meal = plan.createMeal(MealDate(LocalDate.of(2026, 3, 3)),
             MealType.LUNCH)
 
@@ -43,7 +48,7 @@ class AssignRecipeToMealUseCaseTest {
     }
 
     @Test
-    fun `throws NotFoundError when mealplan does not exist`() {
+    fun throwNotFoundErrorWhenMealPlanDoesntExist() {
         val planId = MealPlanId(UUID.randomUUID())
         every { mealPlanRepository.findById(planId) } returns null
 
@@ -61,7 +66,11 @@ class AssignRecipeToMealUseCaseTest {
     @Test
     fun throwNotFoundIfMealNotFound() {
         val planId = MealPlanId(UUID.randomUUID())
-        val plan = MealPlan(planId)
+        val plan = MealPlan(
+            id = planId,
+            name = "Plan",
+            createdBy = UserId(UUID.randomUUID()),
+        )
 
         every { mealPlanRepository.findById(planId) } returns plan
 
@@ -81,7 +90,11 @@ class AssignRecipeToMealUseCaseTest {
         val planId = MealPlanId(UUID.randomUUID())
         val recipeId = RecipeId(UUID.randomUUID())
 
-        val plan = MealPlan(planId)
+        val plan = MealPlan(
+            id = planId,
+            name = "Plan",
+            createdBy = UserId(UUID.randomUUID()),
+        )
         val meal = plan.createMeal(MealDate(LocalDate.of(2026, 3, 3)),
             MealType.DINNER)
 

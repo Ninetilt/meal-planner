@@ -9,6 +9,7 @@ import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
 import de.dhbw.mealplanner.domain.mealplan.MealType
 import de.dhbw.mealplanner.domain.recipe.RecipeId
+import de.dhbw.mealplanner.domain.user.UserId
 import io.mockk.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -24,7 +25,11 @@ class RemoveRecipeFromMealUseCaseTest {
     fun removeRecipeFromMealAndSavePlan() {
         val planId = MealPlanId(UUID.randomUUID())
 
-        val plan = MealPlan(planId)
+        val plan = MealPlan(
+            id = planId,
+            name = "Plan",
+            createdBy = UserId(UUID.randomUUID()),
+        )
         val meal = plan.createMeal(
             MealDate(LocalDate.of(2026, 2, 2)), MealType.LUNCH)
         meal.recipeId = RecipeId(UUID.randomUUID())
@@ -53,7 +58,11 @@ class RemoveRecipeFromMealUseCaseTest {
     @Test
     fun throwNotFoundIfMealNotFound() {
         val planId = MealPlanId(UUID.randomUUID())
-        val plan = MealPlan(planId)
+        val plan = MealPlan(
+            id = planId,
+            name = "Plan",
+            createdBy = UserId(UUID.randomUUID()),
+        )
 
         every { mealPlanRepository.findById(planId) } returns plan
 
