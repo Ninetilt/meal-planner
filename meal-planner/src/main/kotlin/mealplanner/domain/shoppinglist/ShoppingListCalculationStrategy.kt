@@ -3,24 +3,14 @@ package de.dhbw.mealplanner.domain.shoppinglist
 import de.dhbw.mealplanner.domain.mealplan.MealPlan
 import de.dhbw.mealplanner.domain.recipe.Recipe
 import de.dhbw.mealplanner.domain.recipe.RecipeId
-
 import java.time.LocalDate
 
-class ShoppingListGenerator(
-    private val strategy: ShoppingListCalculationStrategy
-) {
+interface ShoppingListCalculationStrategy {
 
-    fun generate(
+    fun calculate(
         mealPlan: MealPlan,
         recipesById: Map<RecipeId, Recipe>,
         startDate: LocalDate,
         endDate: LocalDate
-    ): ShoppingList {
-        return strategy.calculate(
-            mealPlan,
-            recipesById,
-            startDate,
-            endDate
-        )
-    }
+    ): ShoppingList
 }
