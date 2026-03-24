@@ -18,7 +18,9 @@ class MealPlanTest {
     @BeforeEach
     fun setUp() {
         mealPlan = MealPlan(
-            id = MealPlanId(UUID.randomUUID())
+            id = MealPlanId(UUID.randomUUID()),
+            name = "Test Plan",
+            createdBy = UserId(UUID.randomUUID())
         )
     }
 
@@ -77,6 +79,7 @@ class MealPlanTest {
 
         val userId = UserId(UUID.randomUUID())
 
+        meal.addParticipant(userId)
         meal.assignResponsible(userId)
 
         assertTrue(meal.getResponsibleUsers().contains(userId))

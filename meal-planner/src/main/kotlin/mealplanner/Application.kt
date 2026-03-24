@@ -3,6 +3,7 @@ package de.dhbw.mealplanner
 import de.dhbw.mealplanner.application.shoppinglist.GenerateShoppingListUseCase
 import de.dhbw.mealplanner.api.routing.registerRoutes
 import de.dhbw.mealplanner.application.mealplan.AddParticipantToMealUseCase
+import de.dhbw.mealplanner.application.mealplan.AddUserToMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignResponsibleToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.CreateMealPlanUseCase
@@ -11,9 +12,13 @@ import de.dhbw.mealplanner.application.recipe.RemoveIngredientFromRecipeUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveParticipantFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveRecipeFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveResponsibleFromMealUseCase
+import de.dhbw.mealplanner.application.mealplan.RemoveUserFromMealPlanUseCase
+import de.dhbw.mealplanner.application.mealplan.query.GetAllMealPlansUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealPlanUseCase
+import de.dhbw.mealplanner.application.mealplan.query.GetMealPlansForUserUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealUseCase
 import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
+import de.dhbw.mealplanner.application.recipe.ChangeIngredientQuantityUseCase
 import de.dhbw.mealplanner.application.recipe.ChangeRecipeDescriptionUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetAllRecipesUseCase
@@ -63,7 +68,7 @@ fun Application.module() {
     val removeResponsibleFromMealUseCase = RemoveResponsibleFromMealUseCase(mealPlanRepository, userRepository)
     val createUserUseCase = CreateUserUseCase(userRepository)
     val createRecipeUseCase = CreateRecipeUseCase(recipeRepository)
-    val createMealPlanUseCase = CreateMealPlanUseCase(mealPlanRepository)
+    val createMealPlanUseCase = CreateMealPlanUseCase(mealPlanRepository, userRepository)
     val createMealUseCase = CreateMealUseCase(mealPlanRepository)
     val removeRecipeFromMealUseCase = RemoveRecipeFromMealUseCase(mealPlanRepository)
     val addIngredientToRecipeUseCase = AddIngredientToRecipeUseCase(recipeRepository)
@@ -73,6 +78,11 @@ fun Application.module() {
     val getRecipeUseCase = GetRecipeUseCase(recipeRepository)
     val getAllRecipesUseCase = GetAllRecipesUseCase(recipeRepository)
     val changeRecipeDescriptionUseCase = ChangeRecipeDescriptionUseCase(recipeRepository)
+    val changeIngredientQuantityUseCase = ChangeIngredientQuantityUseCase(recipeRepository)
+    val addUserToMealPlanUseCase = AddUserToMealPlanUseCase(mealPlanRepository, userRepository)
+    val removeUserFromMealPlanUseCase = RemoveUserFromMealPlanUseCase(mealPlanRepository, userRepository)
+    val getAllMealPlansUseCase = GetAllMealPlansUseCase(mealPlanRepository)
+    val getMealPlansForUserUseCase = GetMealPlansForUserUseCase(mealPlanRepository, userRepository)
 
     registerRoutes(
         mealPlanRepository = mealPlanRepository,
@@ -94,5 +104,10 @@ fun Application.module() {
         getRecipeUseCase = getRecipeUseCase,
         getAllRecipesUseCase = getAllRecipesUseCase,
         changeRecipeDescriptionUseCase = changeRecipeDescriptionUseCase,
+        changeIngredientQuantityUseCase = changeIngredientQuantityUseCase,
+        addUserToMealPlanUseCase = addUserToMealPlanUseCase,
+        removeUserFromMealPlanUseCase = removeUserFromMealPlanUseCase,
+        getAllMealPlansUseCase = getAllMealPlansUseCase,
+        getMealPlansForUserUseCase = getMealPlansForUserUseCase,
     )
 }

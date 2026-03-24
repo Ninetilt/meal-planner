@@ -27,24 +27,47 @@ class SqlMealPlanRepository : MealPlanRepository {
             if (existingMealPlan == null) {
                 MealPlansTable.insert {
                     it[id] = mealPlan.id.value
+                    it[name] = mealPlan.getName()
+                    it[createdBy] = mealPlan.createdBy.value
+                }
+            } else {
+                MealPlanMembersTable.deleteWhere {
+                    MealPlanMembersTable.mealPlanId eq mealPlan.id.value
+                }
+
+                val existingMealIds = MealsTable.selectAll()
+                    .where { MealsTable.mealPlanId eq mealPlan.id.value }
+                    .map { it[MealsTable.id].value }
+
+                if (existingMealIds.isNotEmpty()) {
+                    MealParticipantsTable.deleteWhere {
+                        MealParticipantsTable.mealId inList existingMealIds
+                    }
+
+                    MealResponsiblesTable.deleteWhere {
+                        MealResponsiblesTable.mealId inList existingMealIds
+                    }
+
+                    MealsTable.deleteWhere {
+                        MealsTable.mealPlanId eq mealPlan.id.value
+                    }
+                }
+
+                MealPlansTable.deleteWhere {
+                    MealPlansTable.id eq mealPlan.id.value
+                }
+
+                MealPlansTable.insert {
+                    it[id] = mealPlan.id.value
+                    it[name] = mealPlan.getName()
+                    it[createdBy] = mealPlan.createdBy.value
                 }
             }
 
-            val existingMealIds = MealsTable.selectAll()
-                .where { MealsTable.mealPlanId eq mealPlan.id.value }
-                .map { it[MealsTable.id].value }
-
-            if (existingMealIds.isNotEmpty()) {
-                MealParticipantsTable.deleteWhere {
-                    MealParticipantsTable.mealId inList existingMealIds
-                }
-
-                MealResponsiblesTable.deleteWhere {
-                    MealResponsiblesTable.mealId inList existingMealIds
-                }
-
-                MealsTable.deleteWhere {
-                    MealsTable.mealPlanId eq mealPlan.id.value
+            mealPlan.getMembers().forEach { memberId ->
+                MealPlanMembersTable.insert {
+                    it[mealPlanId] = mealPlan.id.value
+                    it[userId] = memberId.value
                 }
             }
 
@@ -81,8 +104,13 @@ class SqlMealPlanRepository : MealPlanRepository {
                 .singleOrNull()
                 ?: return@transaction null
 
+            val members = MealPlanMembersTable.selectAll()
+                .where { MealPlanMembersTable.mealPlanId eq id.value }
+                .map { UserId(it[MealPlanMembersTable.userId].value) }
+                .toMutableSet()
+
             val meals = MealsTable.selectAll()
-                .where { MealsTable.mealPlanId eq mealPlanRow[MealPlansTable.id].value }
+                .where { MealsTable.mealPlanId eq id.value }
                 .map { mealRow ->
                     val mealId = MealId(mealRow[MealsTable.id].value)
 
@@ -109,6 +137,9 @@ class SqlMealPlanRepository : MealPlanRepository {
 
             MealPlan(
                 id = MealPlanId(mealPlanRow[MealPlansTable.id].value),
+                name = mealPlanRow[MealPlansTable.name],
+                createdBy = UserId(mealPlanRow[MealPlansTable.createdBy].value),
+                members = members,
                 meals = meals
             )
         }
@@ -139,6 +170,10 @@ class SqlMealPlanRepository : MealPlanRepository {
                 MealResponsiblesTable.deleteWhere {
                     MealResponsiblesTable.mealId inList mealIds
                 }
+            }
+
+            MealPlanMembersTable.deleteWhere {
+                MealPlanMembersTable.mealPlanId eq id.value
             }
 
             MealsTable.deleteWhere {

@@ -2,32 +2,28 @@ package de.dhbw.mealplanner.application.mealplan
 
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
-import de.dhbw.mealplanner.domain.mealplan.MealId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
 import de.dhbw.mealplanner.domain.user.UserId
 import de.dhbw.mealplanner.domain.user.UserRepository
 
-class AddParticipantToMealUseCase(
+class RemoveUserFromMealPlanUseCase(
     private val mealPlanRepository: MealPlanRepository,
     private val userRepository: UserRepository
 ) {
-    fun execute(mealPlanId: MealPlanId, mealId: MealId, userId: UserId) {
-        val plan = mealPlanRepository.findById(mealPlanId)
+    fun execute(mealPlanId: MealPlanId, userId: UserId) {
+        val mealPlan = mealPlanRepository.findById(mealPlanId)
             ?: throw NotFoundError("mealplan")
-
-        val meal = plan.getMeals().find { it.id == mealId }
-            ?: throw NotFoundError("meal")
 
         val user = userRepository.findById(userId)
             ?: throw NotFoundError("user")
 
-        if (!plan.isMember(user.id)) {
-            throw ValidationError("user is not a member of this meal plan")
+        try {
+            mealPlan.removeMember(user.id)
+        } catch (e: IllegalArgumentException) {
+            throw ValidationError(e.message ?: "cannot remove user from meal plan")
         }
 
-        meal.addParticipant(user.id)
-
-        mealPlanRepository.save(plan)
+        mealPlanRepository.save(mealPlan)
     }
 }

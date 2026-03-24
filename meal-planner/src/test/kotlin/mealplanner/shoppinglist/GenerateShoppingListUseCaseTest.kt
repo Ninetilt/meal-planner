@@ -13,6 +13,7 @@ import de.dhbw.mealplanner.domain.recipe.RecipeId
 import de.dhbw.mealplanner.domain.recipe.RecipeRepository
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingList
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingListGenerator
+import de.dhbw.mealplanner.domain.user.UserId
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -62,7 +63,11 @@ class GenerateShoppingListUseCaseTest {
         val planId = MealPlanId(UUID.randomUUID())
         val recipeId = RecipeId(UUID.randomUUID())
 
-        val mealPlan = MealPlan(planId)
+        val mealPlan = MealPlan(
+            id = planId,
+            name = "Plan",
+            createdBy = UserId(UUID.randomUUID()),
+        )
         val meal = mealPlan.createMeal(
             MealDate(LocalDate.of(2026, 1, 1)), MealType.LUNCH)
         meal.recipeId = recipeId
