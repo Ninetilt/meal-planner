@@ -15,7 +15,7 @@ class DefaultShoppingListCalculationStrategy : ShoppingListCalculationStrategy {
         endDate: LocalDate
     ): ShoppingList {
 
-        val aggregatedIngredients = mutableMapOf<Pair<String, String>, Double>()
+        val aggregatedIngredients = mutableMapOf<IngredientAggregationKey, Double>()
         val recipesWithoutIngredients = mutableListOf<String>()
         var mealsWithoutParticipants = 0
 
@@ -45,8 +45,8 @@ class DefaultShoppingListCalculationStrategy : ShoppingListCalculationStrategy {
 
             for (ingredientQuantity in ingredients) {
 
-                val key = Pair(
-                    ingredientQuantity.ingredient.value,
+                val key = IngredientAggregationKey(
+                    ingredientQuantity.ingredient,
                     ingredientQuantity.unit
                 )
 
@@ -60,9 +60,9 @@ class DefaultShoppingListCalculationStrategy : ShoppingListCalculationStrategy {
 
         val items = aggregatedIngredients.map { (key, totalAmount) ->
             ShoppingListItem(
-                ingredient = IngredientName(key.first),
+                ingredient = key.ingredient,
                 totalAmount = totalAmount,
-                unit = key.second
+                unit = key.unit
             )
         }
 
