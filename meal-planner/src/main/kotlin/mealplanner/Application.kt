@@ -24,6 +24,7 @@ import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetAllRecipesUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetRecipeUseCase
 import de.dhbw.mealplanner.application.user.CreateUserUseCase
+import de.dhbw.mealplanner.domain.shoppinglist.DefaultShoppingListCalculationStrategy
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingListGenerator
 import de.dhbw.mealplanner.persistence.db.DatabaseFactory
 import de.dhbw.mealplanner.persistence.mealplan.SqlMealPlanRepository
@@ -58,7 +59,8 @@ fun Application.module() {
     val userRepository = SqlUserRepository()
     val mealPlanRepository = SqlMealPlanRepository()
 
-    val shoppingListGenerator = ShoppingListGenerator()
+    val strategy = DefaultShoppingListCalculationStrategy()
+    val shoppingListGenerator = ShoppingListGenerator(strategy)
 
     val generateShoppingListUseCase = GenerateShoppingListUseCase(mealPlanRepository, recipeRepository, shoppingListGenerator)
     val assignRecipeToMealUseCase = AssignRecipeToMealUseCase(mealPlanRepository, recipeRepository)
