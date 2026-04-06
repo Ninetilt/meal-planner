@@ -4,6 +4,7 @@ import de.dhbw.mealplanner.api.dto.mealplan.RemoveIngredientRequest
 import de.dhbw.mealplanner.api.dto.recipe.AddIngredientRequest
 import de.dhbw.mealplanner.api.dto.recipe.ChangeDescriptionRequest
 import de.dhbw.mealplanner.api.dto.recipe.CreateRecipeRequest
+import de.dhbw.mealplanner.api.dto.recipe.DeleteRecipeResponse
 import de.dhbw.mealplanner.api.dto.recipe.IngredientResponse
 import de.dhbw.mealplanner.api.dto.recipe.RecipeDetailsResponse
 import de.dhbw.mealplanner.api.dto.recipe.RecipeResponse
@@ -15,6 +16,7 @@ import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.ChangeIngredientQuantityUseCase
 import de.dhbw.mealplanner.application.recipe.ChangeRecipeDescriptionUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
+import de.dhbw.mealplanner.application.recipe.DeleteRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetAllRecipesUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetRecipeUseCase
 import de.dhbw.mealplanner.domain.recipe.IngredientName
@@ -29,6 +31,7 @@ import java.util.UUID
 
 fun Route.recipeRoutes(
     createRecipeUseCase: CreateRecipeUseCase,
+    deleteRecipeUseCase: DeleteRecipeUseCase,
     addIngredientToRecipeUseCase: AddIngredientToRecipeUseCase,
     removeIngredientFromRecipeUseCase: RemoveIngredientFromRecipeUseCase,
     getRecipeUseCase: GetRecipeUseCase,
@@ -87,6 +90,23 @@ fun Route.recipeRoutes(
                 description = view.description
             )
             call.respond(response)
+        }
+
+        delete("/{id}") {
+            val idParam = call.parameters["id"]
+            val uuid = runCatching { UUID.fromString(idParam) }.getOrNull()
+                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid recipe id")
+
+            try {
+                deleteRecipeUseCase.execute(RecipeId(uuid))
+            } catch (e: NotFoundError) {
+                return@delete call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
+            }
+
+            call.respond(
+                HttpStatusCode.OK,
+                DeleteRecipeResponse(id = uuid.toString())
+            )
         }
 
         post("/{id}/ingredients") {

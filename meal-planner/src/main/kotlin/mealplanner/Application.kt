@@ -8,6 +8,8 @@ import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignResponsibleToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.CreateMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.CreateMealUseCase
+import de.dhbw.mealplanner.application.mealplan.DeleteMealPlanUseCase
+import de.dhbw.mealplanner.application.mealplan.DeleteMealUseCase
 import de.dhbw.mealplanner.application.recipe.RemoveIngredientFromRecipeUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveParticipantFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveRecipeFromMealUseCase
@@ -21,9 +23,11 @@ import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.ChangeIngredientQuantityUseCase
 import de.dhbw.mealplanner.application.recipe.ChangeRecipeDescriptionUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
+import de.dhbw.mealplanner.application.recipe.DeleteRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetAllRecipesUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetRecipeUseCase
 import de.dhbw.mealplanner.application.user.CreateUserUseCase
+import de.dhbw.mealplanner.application.user.DeleteUserUseCase
 import de.dhbw.mealplanner.domain.shoppinglist.DefaultShoppingListCalculationStrategy
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingListGenerator
 import de.dhbw.mealplanner.persistence.db.DatabaseFactory
@@ -72,6 +76,10 @@ fun Application.module() {
     val createRecipeUseCase = CreateRecipeUseCase(recipeRepository)
     val createMealPlanUseCase = CreateMealPlanUseCase(mealPlanRepository, userRepository)
     val createMealUseCase = CreateMealUseCase(mealPlanRepository)
+    val deleteMealPlanUseCase = DeleteMealPlanUseCase(mealPlanRepository)
+    val deleteMealUseCase = DeleteMealUseCase(mealPlanRepository)
+    val deleteRecipeUseCase = DeleteRecipeUseCase(recipeRepository)
+    val deleteUserUseCase = DeleteUserUseCase(userRepository)
     val removeRecipeFromMealUseCase = RemoveRecipeFromMealUseCase(mealPlanRepository)
     val addIngredientToRecipeUseCase = AddIngredientToRecipeUseCase(recipeRepository)
     val removeIngredientFromRecipeUseCase = RemoveIngredientFromRecipeUseCase(recipeRepository)
@@ -98,6 +106,10 @@ fun Application.module() {
         createRecipeUseCase = createRecipeUseCase,
         createMealPlanUseCase = createMealPlanUseCase,
         createMealUseCase = createMealUseCase,
+        deleteMealPlanUseCase = deleteMealPlanUseCase,
+        deleteMealUseCase = deleteMealUseCase,
+        deleteRecipeUseCase = deleteRecipeUseCase,
+        deleteUserUseCase = deleteUserUseCase,
         removeRecipeFromMealUseCase = removeRecipeFromMealUseCase,
         addIngredientToRecipeUseCase = addIngredientToRecipeUseCase,
         removeIngredientFromRecipeUseCase = removeIngredientFromRecipeUseCase,

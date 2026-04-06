@@ -6,6 +6,8 @@ import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignResponsibleToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.CreateMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.CreateMealUseCase
+import de.dhbw.mealplanner.application.mealplan.DeleteMealPlanUseCase
+import de.dhbw.mealplanner.application.mealplan.DeleteMealUseCase
 import de.dhbw.mealplanner.application.recipe.RemoveIngredientFromRecipeUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveParticipantFromMealUseCase
 import de.dhbw.mealplanner.application.mealplan.RemoveRecipeFromMealUseCase
@@ -19,10 +21,12 @@ import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.ChangeIngredientQuantityUseCase
 import de.dhbw.mealplanner.application.recipe.ChangeRecipeDescriptionUseCase
 import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
+import de.dhbw.mealplanner.application.recipe.DeleteRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetAllRecipesUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetRecipeUseCase
 import de.dhbw.mealplanner.application.shoppinglist.GenerateShoppingListUseCase
 import de.dhbw.mealplanner.application.user.CreateUserUseCase
+import de.dhbw.mealplanner.application.user.DeleteUserUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
@@ -39,6 +43,10 @@ fun Application.registerRoutes(
     createRecipeUseCase: CreateRecipeUseCase,
     createMealPlanUseCase: CreateMealPlanUseCase,
     createMealUseCase: CreateMealUseCase,
+    deleteMealPlanUseCase: DeleteMealPlanUseCase,
+    deleteMealUseCase: DeleteMealUseCase,
+    deleteRecipeUseCase: DeleteRecipeUseCase,
+    deleteUserUseCase: DeleteUserUseCase,
     removeRecipeFromMealUseCase: RemoveRecipeFromMealUseCase,
     addIngredientToRecipeUseCase: AddIngredientToRecipeUseCase,
     removeIngredientFromRecipeUseCase: RemoveIngredientFromRecipeUseCase,
@@ -56,6 +64,7 @@ fun Application.registerRoutes(
     routing {
         recipeRoutes(
             createRecipeUseCase,
+            deleteRecipeUseCase,
             addIngredientToRecipeUseCase,
             removeIngredientFromRecipeUseCase,
             getRecipeUseCase,
@@ -65,6 +74,7 @@ fun Application.registerRoutes(
             )
         userRoutes(
             createUserUseCase,
+            deleteUserUseCase,
             getMealPlansForUserUseCase
         )
         mealPlanRoutes(
@@ -76,6 +86,8 @@ fun Application.registerRoutes(
             removeResponsibleFromMealUseCase,
             createMealPlanUseCase,
             createMealUseCase,
+            deleteMealPlanUseCase,
+            deleteMealUseCase,
             removeRecipeFromMealUseCase,
             getMealPlanUseCase,
             getMealUseCase,
