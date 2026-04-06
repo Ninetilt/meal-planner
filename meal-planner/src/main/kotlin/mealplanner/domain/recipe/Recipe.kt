@@ -26,7 +26,7 @@ class Recipe(
     fun changeIngredientQuantity(
         ingredient: IngredientName,
         newAmount: Double,
-        newUnit: String
+        newUnit: IngredientUnit
     ) {
         val index = ingredients.indexOfFirst { it.ingredient == ingredient }
         if (index == -1) {
