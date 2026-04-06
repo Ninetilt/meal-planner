@@ -65,11 +65,11 @@ class ShoppingListGeneratorTest {
 
         assertEquals(1, result.items.size)
         assertEquals(4.0, result.items[0].totalAmount)
-        assertEquals(0, result.mealsWithoutParticipants)
+        assertEquals(0, result.incompleteMeals)
     }
 
     @Test
-    fun ignoreMealsWithoutParticipantsAndIncreaseCounter() {
+    fun ignoreMealsWithoutParticipantsAndIncreaseIncompleteMealsCounter() {
         val recipeId = RecipeId(UUID.randomUUID())
         val recipe = Recipe(
             id = recipeId,
@@ -96,7 +96,23 @@ class ShoppingListGeneratorTest {
         )
 
         assertTrue(result.items.isEmpty())
-        assertEquals(1, result.mealsWithoutParticipants)
+        assertEquals(1, result.incompleteMeals)
+    }
+
+    @Test
+    fun ignoreMealsWithoutRecipeAndIncreaseIncompleteMealsCounter() {
+        val date = MealDate(LocalDate.of(2026, 2, 28))
+        mealPlan.createMeal(date, MealType.DINNER)
+
+        val result = generator.generate(
+            mealPlan = mealPlan,
+            recipesById = emptyMap(),
+            startDate = LocalDate.of(2026, 2, 27),
+            endDate = LocalDate.of(2026, 3, 1)
+        )
+
+        assertTrue(result.items.isEmpty())
+        assertEquals(1, result.incompleteMeals)
     }
 
     @Test

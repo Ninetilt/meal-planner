@@ -19,27 +19,27 @@ class DefaultShoppingListCalculationStrategy : ShoppingListCalculationStrategy {
 
         val aggregatedIngredients = mutableMapOf<IngredientAggregationKey, Double>()
         val recipesWithoutIngredients = mutableListOf<String>()
-        var mealsWithoutParticipants = 0
+        var incompleteMeals = 0
 
         val relevantMeals = findRelevantMeals(mealPlan, startDate, endDate)
 
         for (meal in relevantMeals) {
-            val hasParticipants = processMeal(
+            val isComplete = processMeal(
                 meal,
                 recipesById,
                 aggregatedIngredients,
                 recipesWithoutIngredients
             )
 
-            if (!hasParticipants) {
-                mealsWithoutParticipants++
+            if (!isComplete) {
+                incompleteMeals++
             }
         }
 
         return createShoppingList(
             aggregatedIngredients,
             recipesWithoutIngredients,
-            mealsWithoutParticipants
+            incompleteMeals
         )
     }
 
@@ -62,8 +62,8 @@ class DefaultShoppingListCalculationStrategy : ShoppingListCalculationStrategy {
         recipesWithoutIngredients: MutableList<String>
     ): Boolean {
 
-        val recipeId = meal.recipeId ?: return true
-        val recipe = recipesById[recipeId] ?: return true
+        val recipeId = meal.recipeId ?: return false
+        val recipe = recipesById[recipeId] ?: return false
 
         val portions = meal.portionCount()
         if (portions <= 0) {
@@ -107,7 +107,7 @@ class DefaultShoppingListCalculationStrategy : ShoppingListCalculationStrategy {
     private fun createShoppingList(
         aggregatedIngredients: Map<IngredientAggregationKey, Double>,
         recipesWithoutIngredients: List<String>,
-        mealsWithoutParticipants: Int
+        incompleteMeals: Int
     ): ShoppingList {
 
         val items = aggregatedIngredients.map { (key, totalAmount) ->
@@ -121,7 +121,7 @@ class DefaultShoppingListCalculationStrategy : ShoppingListCalculationStrategy {
         return ShoppingList(
             items = items,
             recipesWithoutIngredients = recipesWithoutIngredients,
-            mealsWithoutParticipants = mealsWithoutParticipants
+            incompleteMeals = incompleteMeals
         )
     }
 }

@@ -47,7 +47,7 @@ fun Route.shoppingRoutes(
                     )
                 },
                 recipesWithoutIngredients = shoppingList.recipesWithoutIngredients,
-                mealsWithoutParticipants = shoppingList.mealsWithoutParticipants
+                incompleteMeals = shoppingList.incompleteMeals
             )
 
             call.respond(response)

@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 data class ShoppingListResponse(
     val items: List<ShoppingListItemResponse>,
     val recipesWithoutIngredients: List<String>,
-    val mealsWithoutParticipants: Int
+    val incompleteMeals: Int
 )
