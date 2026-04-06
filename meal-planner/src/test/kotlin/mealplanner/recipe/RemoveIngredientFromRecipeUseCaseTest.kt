@@ -4,11 +4,17 @@ import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.recipe.RemoveIngredientFromRecipeUseCase
 import de.dhbw.mealplanner.domain.recipe.IngredientName
 import de.dhbw.mealplanner.domain.recipe.IngredientQuantity
+import de.dhbw.mealplanner.domain.recipe.IngredientUnit
 import de.dhbw.mealplanner.domain.recipe.Recipe
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import de.dhbw.mealplanner.domain.recipe.RecipeRepository
-import io.mockk.*
-import org.junit.jupiter.api.Assertions.*
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -26,7 +32,7 @@ class RemoveIngredientFromRecipeUseCaseTest {
             IngredientQuantity(
                 ingredient = IngredientName("Tomato"),
                 amount = 2.0,
-                unit = "pieces"
+                unit = IngredientUnit.PIECE
             )
         )
 

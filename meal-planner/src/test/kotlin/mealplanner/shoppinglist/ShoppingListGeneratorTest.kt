@@ -6,12 +6,14 @@ import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.mealplan.MealType
 import de.dhbw.mealplanner.domain.recipe.IngredientName
 import de.dhbw.mealplanner.domain.recipe.IngredientQuantity
+import de.dhbw.mealplanner.domain.recipe.IngredientUnit
 import de.dhbw.mealplanner.domain.recipe.Recipe
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import de.dhbw.mealplanner.domain.shoppinglist.DefaultShoppingListCalculationStrategy
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingListGenerator
 import de.dhbw.mealplanner.domain.user.UserId
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -45,7 +47,7 @@ class ShoppingListGeneratorTest {
             IngredientQuantity(
                 ingredient = IngredientName("Tomato"),
                 amount = 2.0,
-                unit = "pieces"
+                unit = IngredientUnit.PIECE
             )
         )
 
@@ -80,7 +82,7 @@ class ShoppingListGeneratorTest {
             IngredientQuantity(
                 ingredient = IngredientName("Karotte"),
                 amount = 2.0,
-                unit = "Stück"
+                unit = IngredientUnit.PIECE
             )
         )
 
@@ -152,7 +154,7 @@ class ShoppingListGeneratorTest {
             IngredientQuantity(
                 ingredient = IngredientName("tomato"),
                 amount = 2.0,
-                unit = "pieces"
+                unit = IngredientUnit.PIECE
             )
         )
 
@@ -183,7 +185,7 @@ class ShoppingListGeneratorTest {
             IngredientQuantity(
                 ingredient = IngredientName("Potato"),
                 amount = 100.0,
-                unit = "g"
+                unit = IngredientUnit.GRAM
             )
         )
 
@@ -197,7 +199,7 @@ class ShoppingListGeneratorTest {
             IngredientQuantity(
                 ingredient = IngredientName("Potato"),
                 amount = 250.0,
-                unit = "g"
+                unit = IngredientUnit.GRAM
             )
         )
 
@@ -227,7 +229,7 @@ class ShoppingListGeneratorTest {
 
         assertEquals(1, result.items.size)
         assertEquals("Potato", result.items[0].ingredient.value)
-        assertEquals("g", result.items[0].unit)
+        assertEquals(IngredientUnit.GRAM, result.items[0].unit)
         assertEquals(350.0, result.items[0].totalAmount)
     }
 }
