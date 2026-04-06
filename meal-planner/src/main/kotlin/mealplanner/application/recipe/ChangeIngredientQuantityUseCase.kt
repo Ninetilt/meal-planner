@@ -3,6 +3,7 @@ package de.dhbw.mealplanner.application.recipe
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.domain.recipe.IngredientName
+import de.dhbw.mealplanner.domain.recipe.IngredientUnit
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import de.dhbw.mealplanner.domain.recipe.RecipeRepository
 
@@ -25,6 +26,12 @@ class ChangeIngredientQuantityUseCase(
             throw ValidationError("unit must not be blank")
         }
 
+        val ingredientUnit = try {
+            IngredientUnit.fromCode(unit)
+        } catch (e: IllegalArgumentException) {
+            throw ValidationError(e.message ?: "invalid unit")
+        }
+
         val recipe = recipeRepository.findById(recipeId)
             ?: throw NotFoundError("recipe")
 
@@ -32,7 +39,7 @@ class ChangeIngredientQuantityUseCase(
             recipe.changeIngredientQuantity(
                 ingredient = IngredientName(ingredient),
                 newAmount = amount,
-                newUnit = unit
+                newUnit = ingredientUnit
             )
         } catch (e: IllegalArgumentException) {
             throw ValidationError(e.message ?: "cannot change ingredient quantity")

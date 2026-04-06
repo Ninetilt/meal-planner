@@ -2,6 +2,7 @@ package de.dhbw.mealplanner.persistence.recipe
 
 import de.dhbw.mealplanner.domain.recipe.IngredientName
 import de.dhbw.mealplanner.domain.recipe.IngredientQuantity
+import de.dhbw.mealplanner.domain.recipe.IngredientUnit
 import de.dhbw.mealplanner.domain.recipe.Recipe
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import de.dhbw.mealplanner.domain.recipe.RecipeRepository
@@ -48,7 +49,7 @@ class SqlRecipeRepository : RecipeRepository {
                     it[recipeId] = recipe.id.value
                     it[ingredient] = ingredientQuantity.ingredient.value
                     it[amount] = ingredientQuantity.amount
-                    it[unit] = ingredientQuantity.unit
+                    it[unit] = ingredientQuantity.unit.code
                 }
             }
         }
@@ -67,7 +68,7 @@ class SqlRecipeRepository : RecipeRepository {
                     IngredientQuantity(
                         ingredient = IngredientName(it[RecipeIngredientsTable.ingredient]),
                         amount = it[RecipeIngredientsTable.amount],
-                        unit = it[RecipeIngredientsTable.unit]
+                        unit = IngredientUnit.fromCode(it[RecipeIngredientsTable.unit])
                     )
                 }
                 .toMutableList()
@@ -92,7 +93,7 @@ class SqlRecipeRepository : RecipeRepository {
                         IngredientQuantity(
                             ingredient = IngredientName(it[RecipeIngredientsTable.ingredient]),
                             amount = it[RecipeIngredientsTable.amount],
-                            unit = it[RecipeIngredientsTable.unit]
+                            unit = IngredientUnit.fromCode(it[RecipeIngredientsTable.unit])
                         )
                     }
                     .toMutableList()

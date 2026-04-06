@@ -18,7 +18,7 @@ class GetRecipeUseCase(
                 IngredientView(
                     ingredient = it.ingredient.value,
                     amount = it.amount,
-                    unit = it.unit
+                    unit = it.unit.code
                 )
             },
             description = recipe.getDescription()
