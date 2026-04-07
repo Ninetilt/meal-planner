@@ -1,5 +1,6 @@
 package de.dhbw.mealplanner.api.dto.mealplan
 
+import de.dhbw.mealplanner.application.mealplan.commands.CreateMealPlanCommand
 import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.domain.user.UserId
 import kotlinx.serialization.Serializable
@@ -15,11 +16,6 @@ data class CreateMealPlanRequest(
         createdBy = UserId(parseUuid(createdBy, "createdBy"))
     )
 }
-
-data class CreateMealPlanCommand(
-    val name: String,
-    val createdBy: UserId
-)
 
 private fun parseUuid(value: String, fieldName: String): UUID =
     runCatching { UUID.fromString(value) }

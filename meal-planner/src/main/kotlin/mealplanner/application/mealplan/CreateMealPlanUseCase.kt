@@ -1,9 +1,8 @@
 package de.dhbw.mealplanner.application.mealplan
 
-
-import de.dhbw.mealplanner.api.dto.mealplan.CreateMealPlanCommand
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
+import de.dhbw.mealplanner.application.mealplan.commands.CreateMealPlanCommand
 import de.dhbw.mealplanner.domain.mealplan.MealPlan
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository

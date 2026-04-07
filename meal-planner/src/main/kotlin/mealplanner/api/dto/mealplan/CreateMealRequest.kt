@@ -1,5 +1,6 @@
 package de.dhbw.mealplanner.api.dto.mealplan
 
+import de.dhbw.mealplanner.application.mealplan.commands.CreateMealCommand
 import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.mealplan.MealType
@@ -18,12 +19,6 @@ data class CreateMealRequest(
         type = parseMealType(type, "type")
     )
 }
-
-data class CreateMealCommand(
-    val mealPlanId: MealPlanId,
-    val date: LocalDate,
-    val type: MealType
-)
 
 private fun parseDate(value: String, fieldName: String): LocalDate =
     runCatching { LocalDate.parse(value) }

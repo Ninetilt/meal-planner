@@ -1,8 +1,8 @@
 package de.dhbw.mealplanner.application.mealplan
 
-import de.dhbw.mealplanner.api.dto.mealplan.RemoveUserFromMealPlanCommand
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
+import de.dhbw.mealplanner.application.mealplan.commands.RemoveUserFromMealPlanCommand
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
 import de.dhbw.mealplanner.domain.user.UserId

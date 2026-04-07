@@ -1,5 +1,6 @@
 package de.dhbw.mealplanner.api.dto.mealplan
 
+import de.dhbw.mealplanner.application.mealplan.commands.AssignRecipeCommand
 import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.domain.mealplan.MealId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
@@ -17,12 +18,6 @@ data class AssignRecipeRequest(
         recipeId = RecipeId(parseUuid(recipeId, "recipeId"))
     )
 }
-
-data class AssignRecipeCommand(
-    val mealPlanId: MealPlanId,
-    val mealId: MealId,
-    val recipeId: RecipeId
-)
 
 private fun parseUuid(value: String, fieldName: String): UUID =
     runCatching { UUID.fromString(value) }

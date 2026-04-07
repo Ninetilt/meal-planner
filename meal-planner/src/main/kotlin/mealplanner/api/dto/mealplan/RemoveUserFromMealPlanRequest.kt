@@ -1,5 +1,6 @@
 package de.dhbw.mealplanner.api.dto.mealplan
 
+import de.dhbw.mealplanner.application.mealplan.commands.RemoveUserFromMealPlanCommand
 import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.user.UserId
@@ -15,11 +16,6 @@ data class RemoveUserFromMealPlanRequest(
         userId = UserId(parseUuid(userId, "userId"))
     )
 }
-
-data class RemoveUserFromMealPlanCommand(
-    val mealPlanId: MealPlanId,
-    val userId: UserId
-)
 
 private fun parseUuid(value: String, fieldName: String): UUID =
     runCatching { UUID.fromString(value) }
