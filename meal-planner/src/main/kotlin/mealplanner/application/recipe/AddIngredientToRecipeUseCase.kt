@@ -2,6 +2,7 @@ package de.dhbw.mealplanner.application.recipe
 
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
+import de.dhbw.mealplanner.api.dto.recipe.AddIngredientCommand
 import de.dhbw.mealplanner.domain.recipe.IngredientName
 import de.dhbw.mealplanner.domain.recipe.IngredientQuantity
 import de.dhbw.mealplanner.domain.recipe.IngredientUnit
@@ -16,23 +17,32 @@ class AddIngredientToRecipeUseCase(
         ingredient: String,
         amount: Double,
         unit: String
-    ) {
-        if (ingredient.isBlank()) throw ValidationError("ingredient must not be blank")
-        if (unit.isBlank()) throw ValidationError("unit must not be blank")
-        if (amount <= 0.0) throw ValidationError("amount must be > 0")
+    ) = execute(
+        AddIngredientCommand(
+            recipeId = recipeId,
+            ingredient = ingredient,
+            amount = amount,
+            unit = unit
+        )
+    )
+
+    fun execute(command: AddIngredientCommand) {
+        if (command.ingredient.isBlank()) throw ValidationError("ingredient must not be blank")
+        if (command.unit.isBlank()) throw ValidationError("unit must not be blank")
+        if (command.amount <= 0.0) throw ValidationError("amount must be > 0")
 
         val ingredientUnit = try {
-            IngredientUnit.fromCode(unit)
+            IngredientUnit.fromCode(command.unit)
         } catch (e: IllegalArgumentException) {
             throw ValidationError(e.message ?: "invalid unit")
         }
 
-        val recipe = recipeRepository.findById(recipeId)
+        val recipe = recipeRepository.findById(command.recipeId)
             ?: throw NotFoundError("recipe")
 
         val ingredientQuantity = IngredientQuantity(
-            ingredient = IngredientName(ingredient),
-            amount = amount,
+            ingredient = IngredientName(command.ingredient),
+            amount = command.amount,
             unit = ingredientUnit
         )
 

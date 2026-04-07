@@ -83,7 +83,6 @@ fun Route.mealPlanRoutes(
         delete("/{planId}") {
             val planUuid = call.requireUuidParam("planId")
             deleteMealPlanUseCase.execute(MealPlanId(planUuid))
-
             call.respond(
                 HttpStatusCode.OK,
                 DeleteMealPlanResponse(id = planUuid.toString())

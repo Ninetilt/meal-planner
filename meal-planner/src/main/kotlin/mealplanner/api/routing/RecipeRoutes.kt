@@ -38,7 +38,7 @@ fun Route.recipeRoutes(
 
         post {
             val req = call.receive<CreateRecipeRequest>()
-            val recipeId = createRecipeUseCase.execute(req.title)
+            val recipeId = createRecipeUseCase.execute(req.toCommand())
             call.respond(HttpStatusCode.Created, IdResponse(recipeId.value.toString()))
         }
 
@@ -65,44 +65,28 @@ fun Route.recipeRoutes(
         post("/{id}/ingredients") {
             val uuid = call.requireUuidParam("id")
             val req = call.receive<AddIngredientRequest>()
-            addIngredientToRecipeUseCase.execute(
-                recipeId = RecipeId(uuid),
-                ingredient = req.ingredient,
-                amount = req.amount,
-                unit = req.unit
-            )
+            addIngredientToRecipeUseCase.execute(req.toCommand(uuid))
             call.respond(HttpStatusCode.Created)
         }
 
         put("/{id}/ingredients") {
             val uuid = call.requireUuidParam("id")
             val req = call.receive<ChangeIngredientQuantityRequest>()
-            changeIngredientQuantityUseCase.execute(
-                recipeId = RecipeId(uuid),
-                ingredient = req.ingredient,
-                amount = req.amount,
-                unit = req.unit
-            )
+            changeIngredientQuantityUseCase.execute(req.toCommand(uuid))
             call.respond(HttpStatusCode.OK)
         }
 
         delete("/{id}/ingredients") {
             val uuid = call.requireUuidParam("id")
             val req = call.receive<RemoveIngredientRequest>()
-            removeIngredientFromRecipeUseCase.execute(
-                recipeId = RecipeId(uuid),
-                ingredient = req.ingredient
-            )
+            removeIngredientFromRecipeUseCase.execute(req.toCommand(uuid))
             call.respond(HttpStatusCode.OK)
         }
 
         put("/{id}/description") {
             val uuid = call.requireUuidParam("id")
             val req = call.receive<ChangeDescriptionRequest>()
-            changeRecipeDescriptionUseCase.execute(
-                recipeId = RecipeId(uuid),
-                description = req.description
-            )
+            changeRecipeDescriptionUseCase.execute(req.toCommand(uuid))
             call.respond(HttpStatusCode.OK)
         }
     }
