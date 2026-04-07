@@ -1,5 +1,6 @@
 package de.dhbw.mealplanner.application.user
 
+import de.dhbw.mealplanner.api.dto.user.CreateUserCommand
 import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.domain.user.EmailAddress
 import de.dhbw.mealplanner.domain.user.User
@@ -10,13 +11,22 @@ import java.util.UUID
 class CreateUserUseCase(
     private val userRepository: UserRepository
 ) {
-    fun execute(name: String, email: String, password: String): UserId {
-        if (name.isBlank()) throw ValidationError("name must not be blank")
+    fun execute(name: String, email: String, password: String): UserId =
+        execute(
+            CreateUserCommand(
+                name = name,
+                email = email,
+                password = password
+            )
+        )
 
-        if (password.isBlank()) throw ValidationError("password must not be blank")
+    fun execute(command: CreateUserCommand): UserId {
+        if (command.name.isBlank()) throw ValidationError("name must not be blank")
+
+        if (command.password.isBlank()) throw ValidationError("password must not be blank")
 
         val emailAddress = try {
-            EmailAddress(email.trim())
+            EmailAddress(command.email.trim())
         } catch (e: IllegalArgumentException) {
             throw ValidationError(e.message ?: "invalid email")
         }
@@ -26,9 +36,9 @@ class CreateUserUseCase(
 
         val user = User(
             id = UserId(UUID.randomUUID()),
-            name = name.trim(),
+            name = command.name.trim(),
             email = emailAddress,
-            password = password
+            password = command.password
         )
 
         userRepository.save(user)

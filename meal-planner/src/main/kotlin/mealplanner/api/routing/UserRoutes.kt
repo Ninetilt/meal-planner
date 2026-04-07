@@ -23,11 +23,7 @@ fun Route.userRoutes(
 
         post {
             val req = call.receive<CreateUserRequest>()
-            val id = createUserUseCase.execute(
-                name = req.name,
-                email = req.email,
-                password = req.password
-            )
+            val id = createUserUseCase.execute(req.toCommand())
             call.respond(HttpStatusCode.Created, IdResponse(id.value.toString()))
         }
 
