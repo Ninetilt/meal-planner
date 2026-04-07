@@ -23,13 +23,11 @@ fun Route.userRoutes(
 
         post {
             val req = call.receive<CreateUserRequest>()
-
             val id = createUserUseCase.execute(
                 name = req.name,
                 email = req.email,
                 password = req.password
             )
-
             call.respond(HttpStatusCode.Created, IdResponse(id.value.toString()))
         }
 
@@ -47,18 +45,7 @@ fun Route.userRoutes(
         get("/{userId}/mealplans") {
             val userUuid = call.requireUuidParam("userId")
             val mealPlans = getMealPlansForUserUseCase.execute(UserId(userUuid))
-
-            call.respond(
-                mealPlans.map {
-                    MealPlanListItemResponse(
-                        id = it.id,
-                        name = it.name,
-                        createdBy = it.createdBy,
-                        memberCount = it.memberCount,
-                        mealCount = it.mealCount
-                    )
-                }
-            )
+            call.respond(mealPlans.map(MealPlanListItemResponse::from))
         }
     }
 }

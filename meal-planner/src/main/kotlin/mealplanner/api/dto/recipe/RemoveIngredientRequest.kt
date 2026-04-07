@@ -1,4 +1,4 @@
-package de.dhbw.mealplanner.api.dto.mealplan
+package de.dhbw.mealplanner.api.dto.recipe
 
 import kotlinx.serialization.Serializable
 

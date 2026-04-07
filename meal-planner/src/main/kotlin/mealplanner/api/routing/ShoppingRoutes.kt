@@ -16,20 +16,7 @@ fun Route.shoppingRoutes(
             val start = call.requireDateQueryParam("start", "start date")
             val end = call.requireDateQueryParam("end", "end date")
             val shoppingList = generateShoppingListUseCase.execute(MealPlanId(planUuid), start, end)
-
-            val response = ShoppingListResponse(
-                items = shoppingList.items.map {
-                    ShoppingListItemResponse(
-                        ingredient = it.ingredient.value,
-                        totalAmount = it.totalAmount,
-                        unit = it.unit.code
-                    )
-                },
-                recipesWithoutIngredients = shoppingList.recipesWithoutIngredients,
-                incompleteMeals = shoppingList.incompleteMeals
-            )
-
-            call.respond(response)
+            call.respond(ShoppingListResponse.from(shoppingList))
         }
     }
 }
