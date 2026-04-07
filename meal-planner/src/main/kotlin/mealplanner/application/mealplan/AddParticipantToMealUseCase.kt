@@ -1,5 +1,6 @@
 package de.dhbw.mealplanner.application.mealplan
 
+import de.dhbw.mealplanner.api.dto.mealplan.AddParticipantCommand
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.domain.mealplan.MealId
@@ -12,14 +13,18 @@ class AddParticipantToMealUseCase(
     private val mealPlanRepository: MealPlanRepository,
     private val userRepository: UserRepository
 ) {
-    fun execute(mealPlanId: MealPlanId, mealId: MealId, userId: UserId) {
-        val plan = mealPlanRepository.findById(mealPlanId)
+    fun execute(mealPlanId: MealPlanId, mealId: MealId, userId: UserId) = execute(
+        AddParticipantCommand(mealPlanId, mealId, userId)
+    )
+
+    fun execute(command: AddParticipantCommand) {
+        val plan = mealPlanRepository.findById(command.mealPlanId)
             ?: throw NotFoundError("mealplan")
 
-        val meal = plan.getMeals().find { it.id == mealId }
+        val meal = plan.getMeals().find { it.id == command.mealId }
             ?: throw NotFoundError("meal")
 
-        val user = userRepository.findById(userId)
+        val user = userRepository.findById(command.userId)
             ?: throw NotFoundError("user")
 
         if (!plan.isMember(user.id)) {

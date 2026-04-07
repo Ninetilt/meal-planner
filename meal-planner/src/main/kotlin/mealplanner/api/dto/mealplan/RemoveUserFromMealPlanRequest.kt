@@ -1,8 +1,26 @@
 package de.dhbw.mealplanner.api.dto.mealplan
 
+import de.dhbw.mealplanner.application.common.ValidationError
+import de.dhbw.mealplanner.domain.mealplan.MealPlanId
+import de.dhbw.mealplanner.domain.user.UserId
 import kotlinx.serialization.Serializable
+import java.util.UUID
 
 @Serializable
 data class RemoveUserFromMealPlanRequest(
     val userId: String
+) {
+    fun toCommand(planId: UUID) = RemoveUserFromMealPlanCommand(
+        mealPlanId = MealPlanId(planId),
+        userId = UserId(parseUuid(userId, "userId"))
+    )
+}
+
+data class RemoveUserFromMealPlanCommand(
+    val mealPlanId: MealPlanId,
+    val userId: UserId
 )
+
+private fun parseUuid(value: String, fieldName: String): UUID =
+    runCatching { UUID.fromString(value) }
+        .getOrElse { throw ValidationError("invalid $fieldName") }

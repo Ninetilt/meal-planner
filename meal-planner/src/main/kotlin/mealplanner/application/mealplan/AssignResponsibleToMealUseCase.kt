@@ -1,5 +1,6 @@
 package de.dhbw.mealplanner.application.mealplan
 
+import de.dhbw.mealplanner.api.dto.mealplan.AssignResponsibleCommand
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.domain.mealplan.MealId
@@ -13,14 +14,18 @@ class AssignResponsibleToMealUseCase(
     private val mealPlanRepository: MealPlanRepository,
     private val userRepository: UserRepository
 ) {
-    fun execute(mealPlanId: MealPlanId, mealId: MealId, userId: UserId) {
-        val plan = mealPlanRepository.findById(mealPlanId)
+    fun execute(mealPlanId: MealPlanId, mealId: MealId, userId: UserId) = execute(
+        AssignResponsibleCommand(mealPlanId, mealId, userId)
+    )
+
+    fun execute(command: AssignResponsibleCommand) {
+        val plan = mealPlanRepository.findById(command.mealPlanId)
             ?: throw NotFoundError("mealplan")
 
-        val meal = plan.getMeals().find { it.id == mealId }
+        val meal = plan.getMeals().find { it.id == command.mealId }
             ?: throw NotFoundError("meal")
 
-        val user = userRepository.findById(userId)
+        val user = userRepository.findById(command.userId)
             ?: throw NotFoundError("user")
 
         try {

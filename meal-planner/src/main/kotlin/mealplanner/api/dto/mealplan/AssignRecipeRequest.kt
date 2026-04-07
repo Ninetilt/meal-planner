@@ -1,8 +1,29 @@
 package de.dhbw.mealplanner.api.dto.mealplan
 
+import de.dhbw.mealplanner.application.common.ValidationError
+import de.dhbw.mealplanner.domain.mealplan.MealId
+import de.dhbw.mealplanner.domain.mealplan.MealPlanId
+import de.dhbw.mealplanner.domain.recipe.RecipeId
 import kotlinx.serialization.Serializable
+import java.util.UUID
 
 @Serializable
 data class AssignRecipeRequest(
     val recipeId: String
+) {
+    fun toCommand(planId: UUID, mealId: UUID) = AssignRecipeCommand(
+        mealPlanId = MealPlanId(planId),
+        mealId = MealId(mealId),
+        recipeId = RecipeId(parseUuid(recipeId, "recipeId"))
+    )
+}
+
+data class AssignRecipeCommand(
+    val mealPlanId: MealPlanId,
+    val mealId: MealId,
+    val recipeId: RecipeId
 )
+
+private fun parseUuid(value: String, fieldName: String): UUID =
+    runCatching { UUID.fromString(value) }
+        .getOrElse { throw ValidationError("invalid $fieldName") }

@@ -32,9 +32,6 @@ import de.dhbw.mealplanner.application.mealplan.query.GetMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
-import de.dhbw.mealplanner.domain.mealplan.MealType
-import de.dhbw.mealplanner.domain.recipe.RecipeId
-import de.dhbw.mealplanner.domain.user.UserId
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -61,11 +58,7 @@ fun Route.mealPlanRoutes(
 
         post {
             val req = call.receive<CreateMealPlanRequest>()
-            val creatorUuid = parseUuid(req.createdBy, "createdBy")
-            val mealPlanId = createMealPlanUseCase.execute(
-                name = req.name,
-                createdBy = UserId(creatorUuid)
-            )
+            val mealPlanId = createMealPlanUseCase.execute(req.toCommand())
             call.respond(HttpStatusCode.Created,IdResponse(mealPlanId.value.toString()))
         }
 
@@ -92,35 +85,21 @@ fun Route.mealPlanRoutes(
         post("/{planId}/meals") {
             val planUuid = call.requireUuidParam("planId")
             val req = call.receive<CreateMealRequest>()
-            val date = parseDate(req.date, "date")
-            val type = parseEnum<MealType>(req.type, "type")
-            val mealId = createMealUseCase.execute(
-                mealPlanId = MealPlanId(planUuid),
-                date = date,
-                type = type
-            )
+            val mealId = createMealUseCase.execute(req.toCommand(planUuid))
             call.respond(HttpStatusCode.Created,IdResponse(mealId.value.toString()))
         }
 
         post("/{planId}/members") {
             val planUuid = call.requireUuidParam("planId")
             val req = call.receive<AddUserToMealPlanRequest>()
-            val userUuid = parseUuid(req.userId, "userId")
-            addUserToMealPlanUseCase.execute(
-                mealPlanId = MealPlanId(planUuid),
-                userId = UserId(userUuid)
-            )
+            addUserToMealPlanUseCase.execute(req.toCommand(planUuid))
             call.respond(HttpStatusCode.OK)
         }
 
         delete("/{planId}/members") {
             val planUuid = call.requireUuidParam("planId")
             val req = call.receive<RemoveUserFromMealPlanRequest>()
-            val userUuid = parseUuid(req.userId, "userId")
-            removeUserFromMealPlanUseCase.execute(
-                mealPlanId = MealPlanId(planUuid),
-                userId = UserId(userUuid)
-            )
+            removeUserFromMealPlanUseCase.execute(req.toCommand(planUuid))
             call.respond(HttpStatusCode.OK)
         }
 
@@ -154,54 +133,31 @@ fun Route.mealPlanRoutes(
             val planUuid = call.requireUuidParam("planId")
             val mealUuid = call.requireUuidParam("mealId")
             val req = call.receive<AddParticipantRequest>()
-            val userUuid = parseUuid(req.userId, "userId")
-            addParticipantToMealUseCase.execute(
-                mealPlanId = MealPlanId(planUuid),
-                mealId = MealId(mealUuid),
-                userId = UserId(userUuid)
-            )
+            addParticipantToMealUseCase.execute(req.toCommand(planUuid, mealUuid))
             call.respond(HttpStatusCode.OK)
         }
 
         delete("/{planId}/meals/{mealId}/participants") {
             val planUuid = call.requireUuidParam("planId")
             val mealUuid = call.requireUuidParam("mealId")
-
             val req = call.receive<RemoveParticipantRequest>()
-            val userUuid = parseUuid(req.userId, "userId")
-            removeParticipantFromMealUseCase.execute(
-                mealPlanId = MealPlanId(planUuid),
-                mealId = MealId(mealUuid),
-                userId = UserId(userUuid)
-            )
+            removeParticipantFromMealUseCase.execute(req.toCommand(planUuid, mealUuid))
             call.respond(HttpStatusCode.OK)
         }
 
         post("/{planId}/meals/{mealId}/responsibles") {
             val planUuid = call.requireUuidParam("planId")
             val mealUuid = call.requireUuidParam("mealId")
-
             val req = call.receive<AssignResponsibleRequest>()
-            val userUuid = parseUuid(req.userId, "userId")
-            assignResponsibleToMealUseCase.execute(
-                mealPlanId = MealPlanId(planUuid),
-                mealId = MealId(mealUuid),
-                userId = UserId(userUuid)
-            )
+            assignResponsibleToMealUseCase.execute(req.toCommand(planUuid, mealUuid))
             call.respond(HttpStatusCode.OK)
         }
 
         delete("/{planId}/meals/{mealId}/responsibles") {
             val planUuid = call.requireUuidParam("planId")
             val mealUuid = call.requireUuidParam("mealId")
-
             val req = call.receive<RemoveResponsibleRequest>()
-            val userUuid = parseUuid(req.userId, "userId")
-            removeResponsibleFromMealUseCase.execute(
-                mealPlanId = MealPlanId(planUuid),
-                mealId = MealId(mealUuid),
-                userId = UserId(userUuid)
-            )
+            removeResponsibleFromMealUseCase.execute(req.toCommand(planUuid, mealUuid))
             call.respond(HttpStatusCode.OK)
         }
 
@@ -209,13 +165,7 @@ fun Route.mealPlanRoutes(
             val planUuid = call.requireUuidParam("planId")
             val mealUuid = call.requireUuidParam("mealId")
             val req = call.receive<AssignRecipeRequest>()
-            val recipeUuid = parseUuid(req.recipeId, "recipeId")
-            assignRecipeToMealUseCase.execute(
-                mealPlanId = MealPlanId(planUuid),
-                mealId = MealId(mealUuid),
-                recipeId = RecipeId(recipeUuid)
-            )
-
+            assignRecipeToMealUseCase.execute(req.toCommand(planUuid, mealUuid))
             call.respond(HttpStatusCode.OK)
         }
 
