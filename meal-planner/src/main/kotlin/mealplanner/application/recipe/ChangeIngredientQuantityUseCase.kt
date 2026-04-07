@@ -2,7 +2,7 @@ package de.dhbw.mealplanner.application.recipe
 
 import de.dhbw.mealplanner.application.common.NotFoundError
 import de.dhbw.mealplanner.application.common.ValidationError
-import de.dhbw.mealplanner.api.dto.recipe.ChangeIngredientQuantityCommand
+import de.dhbw.mealplanner.application.recipe.commands.ChangeIngredientQuantityCommand
 import de.dhbw.mealplanner.domain.recipe.IngredientName
 import de.dhbw.mealplanner.domain.recipe.IngredientUnit
 import de.dhbw.mealplanner.domain.recipe.RecipeId

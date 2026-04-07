@@ -1,5 +1,6 @@
 package de.dhbw.mealplanner.api.dto.recipe
 
+import de.dhbw.mealplanner.application.recipe.commands.RemoveIngredientCommand
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import kotlinx.serialization.Serializable
 import java.util.UUID
@@ -13,8 +14,3 @@ data class RemoveIngredientRequest(
         ingredient = ingredient
     )
 }
-
-data class RemoveIngredientCommand(
-    val recipeId: RecipeId,
-    val ingredient: String
-)

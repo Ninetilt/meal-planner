@@ -1,7 +1,7 @@
 package de.dhbw.mealplanner.application.recipe
 
-import de.dhbw.mealplanner.api.dto.recipe.ChangeDescriptionCommand
 import de.dhbw.mealplanner.application.common.NotFoundError
+import de.dhbw.mealplanner.application.recipe.commands.ChangeDescriptionCommand
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import de.dhbw.mealplanner.domain.recipe.RecipeRepository
 

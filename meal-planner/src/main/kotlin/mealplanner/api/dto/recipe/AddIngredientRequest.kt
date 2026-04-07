@@ -1,5 +1,6 @@
 package de.dhbw.mealplanner.api.dto.recipe
 
+import de.dhbw.mealplanner.application.recipe.commands.AddIngredientCommand
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import kotlinx.serialization.Serializable
 import java.util.UUID
@@ -17,10 +18,3 @@ data class AddIngredientRequest(
         unit = unit
     )
 }
-
-data class AddIngredientCommand(
-    val recipeId: RecipeId,
-    val ingredient: String,
-    val amount: Double,
-    val unit: String
-)

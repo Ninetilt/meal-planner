@@ -1,5 +1,6 @@
 package de.dhbw.mealplanner.api.dto.recipe
 
+import de.dhbw.mealplanner.application.recipe.commands.CreateRecipeCommand
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -8,7 +9,3 @@ data class CreateRecipeRequest(
 ) {
     fun toCommand() = CreateRecipeCommand(title = title)
 }
-
-data class CreateRecipeCommand(
-    val title: String
-)

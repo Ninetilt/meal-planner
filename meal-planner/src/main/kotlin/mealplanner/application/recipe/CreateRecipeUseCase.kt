@@ -1,7 +1,7 @@
 package de.dhbw.mealplanner.application.recipe
 
-import de.dhbw.mealplanner.api.dto.recipe.CreateRecipeCommand
 import de.dhbw.mealplanner.application.common.ValidationError
+import de.dhbw.mealplanner.application.recipe.commands.CreateRecipeCommand
 import de.dhbw.mealplanner.domain.recipe.Recipe
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import de.dhbw.mealplanner.domain.recipe.RecipeRepository
