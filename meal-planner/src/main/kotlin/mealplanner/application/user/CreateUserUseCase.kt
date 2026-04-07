@@ -1,6 +1,6 @@
 package de.dhbw.mealplanner.application.user
 
-import de.dhbw.mealplanner.api.dto.user.CreateUserCommand
+import de.dhbw.mealplanner.application.user.commands.CreateUserCommand
 import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.domain.user.EmailAddress
 import de.dhbw.mealplanner.domain.user.User
