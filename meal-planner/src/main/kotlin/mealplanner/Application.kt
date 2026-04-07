@@ -1,5 +1,6 @@
 package de.dhbw.mealplanner
 
+import de.dhbw.mealplanner.api.configureStatusPages
 import de.dhbw.mealplanner.application.shoppinglist.GenerateShoppingListUseCase
 import de.dhbw.mealplanner.api.routing.registerRoutes
 import de.dhbw.mealplanner.application.mealplan.AddParticipantToMealUseCase
@@ -56,6 +57,7 @@ fun Application.module() {
             }
         )
     }
+    configureStatusPages()
 
     DatabaseFactory.init()
 

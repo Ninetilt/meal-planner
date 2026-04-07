@@ -9,8 +9,6 @@ import de.dhbw.mealplanner.api.dto.recipe.IngredientResponse
 import de.dhbw.mealplanner.api.dto.recipe.RecipeDetailsResponse
 import de.dhbw.mealplanner.api.dto.recipe.RecipeResponse
 import de.dhbw.mealplanner.application.common.IdResponse
-import de.dhbw.mealplanner.application.common.NotFoundError
-import de.dhbw.mealplanner.application.common.ValidationError
 import de.dhbw.mealplanner.application.recipe.RemoveIngredientFromRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.ChangeIngredientQuantityUseCase
@@ -19,15 +17,11 @@ import de.dhbw.mealplanner.application.recipe.CreateRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.DeleteRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetAllRecipesUseCase
 import de.dhbw.mealplanner.application.recipe.query.GetRecipeUseCase
-import de.dhbw.mealplanner.domain.recipe.IngredientName
-import de.dhbw.mealplanner.domain.recipe.IngredientQuantity
-import de.dhbw.mealplanner.domain.recipe.Recipe
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.respond
 import io.ktor.server.routing.*
-import java.util.UUID
 
 fun Route.recipeRoutes(
     createRecipeUseCase: CreateRecipeUseCase,
@@ -45,11 +39,7 @@ fun Route.recipeRoutes(
         post {
             val req = call.receive<CreateRecipeRequest>()
 
-            val recipeId = try {
-                createRecipeUseCase.execute(req.title)
-            } catch (e: ValidationError) {
-                return@post call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
-            }
+            val recipeId = createRecipeUseCase.execute(req.title)
 
             call.respond(HttpStatusCode.Created, IdResponse(recipeId.value.toString()))
         }
@@ -67,15 +57,8 @@ fun Route.recipeRoutes(
         }
 
         get("/{id}") {
-            val idParam = call.parameters["id"]
-            val uuid = runCatching {UUID.fromString(idParam) }.getOrNull()
-                ?: return@get call.respond(HttpStatusCode.BadRequest, "invalid recipe id")
-
-            val view = try {
-                getRecipeUseCase.execute(RecipeId(uuid))
-            } catch (e: NotFoundError) {
-                return@get call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
+            val uuid = parseUuidParam(call.parameters["id"], "recipe id")
+            val view = getRecipeUseCase.execute(RecipeId(uuid))
 
             val response = RecipeDetailsResponse(
                 id = view.id,
@@ -93,15 +76,8 @@ fun Route.recipeRoutes(
         }
 
         delete("/{id}") {
-            val idParam = call.parameters["id"]
-            val uuid = runCatching { UUID.fromString(idParam) }.getOrNull()
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid recipe id")
-
-            try {
-                deleteRecipeUseCase.execute(RecipeId(uuid))
-            } catch (e: NotFoundError) {
-                return@delete call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
+            val uuid = parseUuidParam(call.parameters["id"], "recipe id")
+            deleteRecipeUseCase.execute(RecipeId(uuid))
 
             call.respond(
                 HttpStatusCode.OK,
@@ -110,89 +86,57 @@ fun Route.recipeRoutes(
         }
 
         post("/{id}/ingredients") {
-            val idParam = call.parameters["id"]
-            val uuid = runCatching { UUID.fromString(idParam) }.getOrNull()
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid recipe id")
+            val uuid = parseUuidParam(call.parameters["id"], "recipe id")
 
             val req = call.receive<AddIngredientRequest>()
 
-            try {
-                addIngredientToRecipeUseCase.execute(
-                    recipeId = RecipeId(uuid),
-                    ingredient = req.ingredient,
-                    amount = req.amount,
-                    unit = req.unit
-                )
-            } catch (e: ValidationError) {
-                return@post call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
-            } catch (e: NotFoundError) {
-                return@post call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
+            addIngredientToRecipeUseCase.execute(
+                recipeId = RecipeId(uuid),
+                ingredient = req.ingredient,
+                amount = req.amount,
+                unit = req.unit
+            )
 
             call.respond(HttpStatusCode.Created)
         }
 
         put("/{id}/ingredients") {
-            val idParam = call.parameters["id"]
-            val uuid = runCatching { UUID.fromString(idParam) }.getOrNull()
-                ?: return@put call.respond(HttpStatusCode.BadRequest, "invalid recipe id")
+            val uuid = parseUuidParam(call.parameters["id"], "recipe id")
 
             val req = call.receive<de.dhbw.mealplanner.api.dto.recipe.ChangeIngredientQuantityRequest>()
 
-            try {
-                changeIngredientQuantityUseCase.execute(
-                    recipeId = RecipeId(uuid),
-                    ingredient = req.ingredient,
-                    amount = req.amount,
-                    unit = req.unit
-                )
-            } catch (e: ValidationError) {
-                return@put call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
-            } catch (e: NotFoundError) {
-                return@put call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
+            changeIngredientQuantityUseCase.execute(
+                recipeId = RecipeId(uuid),
+                ingredient = req.ingredient,
+                amount = req.amount,
+                unit = req.unit
+            )
 
             call.respond(io.ktor.http.HttpStatusCode.OK)
         }
 
         delete("/{id}/ingredients") {
-            val idParam = call.parameters["id"]
-            val uuid = runCatching { UUID.fromString(idParam) }.getOrNull()
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid recipe id")
+            val uuid = parseUuidParam(call.parameters["id"], "recipe id")
 
             val req = call.receive<RemoveIngredientRequest>()
 
-            try {
-                removeIngredientFromRecipeUseCase.execute(
-                    recipeId = RecipeId(uuid),
-                    ingredient = req.ingredient
-                )
-            } catch (e: ValidationError) {
-                return@delete call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
-            } catch (e: NotFoundError) {
-                return@delete call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
+            removeIngredientFromRecipeUseCase.execute(
+                recipeId = RecipeId(uuid),
+                ingredient = req.ingredient
+            )
 
             call.respond(HttpStatusCode.OK)
         }
 
         put("/{id}/description") {
-            val idParam = call.parameters["id"]
-            val uuid = runCatching { UUID.fromString(idParam) }.getOrNull()
-                ?: return@put call.respond(HttpStatusCode.BadRequest, "invalid recipe id")
+            val uuid = parseUuidParam(call.parameters["id"], "recipe id")
 
             val req = call.receive<ChangeDescriptionRequest>()
 
-            try {
-                changeRecipeDescriptionUseCase.execute(
-                    recipeId = RecipeId(uuid),
-                    description = req.description
-                )
-            } catch (e: ValidationError) {
-                return@put call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
-            } catch (e: NotFoundError) {
-                return@put call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
+            changeRecipeDescriptionUseCase.execute(
+                recipeId = RecipeId(uuid),
+                description = req.description
+            )
 
             call.respond(HttpStatusCode.OK)
         }
