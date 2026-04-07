@@ -91,13 +91,15 @@ class DefaultShoppingListCalculationStrategy : ShoppingListCalculationStrategy {
         aggregatedIngredients: MutableMap<IngredientAggregationKey, Double>
     ) {
         for (ingredientQuantity in ingredients) {
+            val normalizedUnit = ingredientQuantity.unit.normalizedUnit()
 
             val key = IngredientAggregationKey(
                 ingredient = ingredientQuantity.ingredient,
-                unit = ingredientQuantity.unit
+                unit = normalizedUnit
             )
 
-            val calculatedAmount = ingredientQuantity.amount * portions.toDouble()
+            val calculatedAmount = ingredientQuantity.unit
+                .normalizeAmount(ingredientQuantity.amount) * portions.toDouble()
 
             aggregatedIngredients[key] =
                 aggregatedIngredients.getOrDefault(key, 0.0) + calculatedAmount

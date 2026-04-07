@@ -2,9 +2,12 @@ package de.dhbw.mealplanner.recipe
 
 import de.dhbw.mealplanner.domain.recipe.IngredientName
 import de.dhbw.mealplanner.domain.recipe.IngredientQuantity
+import de.dhbw.mealplanner.domain.recipe.IngredientUnit
 import de.dhbw.mealplanner.domain.recipe.Recipe
 import de.dhbw.mealplanner.domain.recipe.RecipeId
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -44,7 +47,7 @@ class RecipeTest {
         val ingredient = IngredientQuantity(
             ingredient = IngredientName("Tomate"),
             amount = 2.0,
-            unit = "Stück"
+            unit = IngredientUnit.PIECE
         )
 
         recipe.addIngredient(ingredient)
@@ -58,7 +61,7 @@ class RecipeTest {
         val ingredient = IngredientQuantity(
             ingredient = IngredientName("Tomate"),
             amount = 2.0,
-            unit = "Stück"
+            unit = IngredientUnit.PIECE
         )
 
         recipe.addIngredient(ingredient)
@@ -75,7 +78,7 @@ class RecipeTest {
         val ingredient = IngredientQuantity(
             ingredient = IngredientName("Tomate"),
             amount = 2.0,
-            unit = "Stück"
+            unit = IngredientUnit.PIECE
         )
 
         recipe.addIngredient(ingredient)

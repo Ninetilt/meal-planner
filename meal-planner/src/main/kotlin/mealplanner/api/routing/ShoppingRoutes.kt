@@ -43,7 +43,7 @@ fun Route.shoppingRoutes(
                     ShoppingListItemResponse(
                         ingredient = it.ingredient.value,
                         totalAmount = it.totalAmount,
-                        unit = it.unit
+                        unit = it.unit.code
                     )
                 },
                 recipesWithoutIngredients = shoppingList.recipesWithoutIngredients,

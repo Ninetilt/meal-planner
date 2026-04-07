@@ -6,12 +6,14 @@ import de.dhbw.mealplanner.domain.mealplan.MealPlanId
 import de.dhbw.mealplanner.domain.mealplan.MealType
 import de.dhbw.mealplanner.domain.recipe.IngredientName
 import de.dhbw.mealplanner.domain.recipe.IngredientQuantity
+import de.dhbw.mealplanner.domain.recipe.IngredientUnit
 import de.dhbw.mealplanner.domain.recipe.Recipe
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import de.dhbw.mealplanner.domain.shoppinglist.DefaultShoppingListCalculationStrategy
 import de.dhbw.mealplanner.domain.shoppinglist.ShoppingListGenerator
 import de.dhbw.mealplanner.domain.user.UserId
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -45,7 +47,7 @@ class ShoppingListGeneratorTest {
             IngredientQuantity(
                 ingredient = IngredientName("Tomato"),
                 amount = 2.0,
-                unit = "pieces"
+                unit = IngredientUnit.PIECE
             )
         )
 
@@ -80,7 +82,7 @@ class ShoppingListGeneratorTest {
             IngredientQuantity(
                 ingredient = IngredientName("Karotte"),
                 amount = 2.0,
-                unit = "Stück"
+                unit = IngredientUnit.PIECE
             )
         )
 
@@ -152,7 +154,7 @@ class ShoppingListGeneratorTest {
             IngredientQuantity(
                 ingredient = IngredientName("tomato"),
                 amount = 2.0,
-                unit = "pieces"
+                unit = IngredientUnit.PIECE
             )
         )
 
@@ -183,7 +185,7 @@ class ShoppingListGeneratorTest {
             IngredientQuantity(
                 ingredient = IngredientName("Potato"),
                 amount = 100.0,
-                unit = "g"
+                unit = IngredientUnit.GRAM
             )
         )
 
@@ -197,7 +199,7 @@ class ShoppingListGeneratorTest {
             IngredientQuantity(
                 ingredient = IngredientName("Potato"),
                 amount = 250.0,
-                unit = "g"
+                unit = IngredientUnit.GRAM
             )
         )
 
@@ -227,7 +229,160 @@ class ShoppingListGeneratorTest {
 
         assertEquals(1, result.items.size)
         assertEquals("Potato", result.items[0].ingredient.value)
-        assertEquals("g", result.items[0].unit)
+        assertEquals(IngredientUnit.GRAM, result.items[0].unit)
         assertEquals(350.0, result.items[0].totalAmount)
+    }
+
+    @Test
+    fun aggregateConvertibleMassUnitsUsingGramAsBaseUnit() {
+        val recipeId1 = RecipeId(UUID.randomUUID())
+        val recipe1 = Recipe(
+            id = recipeId1,
+            title = "Recipe 1"
+        )
+
+        recipe1.addIngredient(
+            IngredientQuantity(
+                ingredient = IngredientName("Flour"),
+                amount = 1.0,
+                unit = IngredientUnit.KILOGRAM
+            )
+        )
+
+        val recipeId2 = RecipeId(UUID.randomUUID())
+        val recipe2 = Recipe(
+            id = recipeId2,
+            title = "Recipe 2"
+        )
+
+        recipe2.addIngredient(
+            IngredientQuantity(
+                ingredient = IngredientName("Flour"),
+                amount = 250.0,
+                unit = IngredientUnit.GRAM
+            )
+        )
+
+        val meal1 = mealPlan.createMeal(MealDate(LocalDate.of(2026, 2, 4)), MealType.LUNCH)
+        meal1.recipeId = recipeId1
+        meal1.addParticipant(UserId(UUID.randomUUID()))
+
+        val meal2 = mealPlan.createMeal(MealDate(LocalDate.of(2026, 2, 4)), MealType.DINNER)
+        meal2.recipeId = recipeId2
+        meal2.addParticipant(UserId(UUID.randomUUID()))
+
+        val result = generator.generate(
+            mealPlan = mealPlan,
+            recipesById = mapOf(recipeId1 to recipe1, recipeId2 to recipe2),
+            startDate = LocalDate.of(2026, 2, 3),
+            endDate = LocalDate.of(2026, 2, 5)
+        )
+
+        assertEquals(1, result.items.size)
+        assertEquals("Flour", result.items[0].ingredient.value)
+        assertEquals(IngredientUnit.GRAM, result.items[0].unit)
+        assertEquals(1250.0, result.items[0].totalAmount)
+    }
+
+    @Test
+    fun aggregateConvertibleVolumeUnitsUsingMilliliterAsBaseUnit() {
+        val recipeId1 = RecipeId(UUID.randomUUID())
+        val recipe1 = Recipe(
+            id = recipeId1,
+            title = "Recipe 1"
+        )
+
+        recipe1.addIngredient(
+            IngredientQuantity(
+                ingredient = IngredientName("Milk"),
+                amount = 1.0,
+                unit = IngredientUnit.LITER
+            )
+        )
+
+        val recipeId2 = RecipeId(UUID.randomUUID())
+        val recipe2 = Recipe(
+            id = recipeId2,
+            title = "Recipe 2"
+        )
+
+        recipe2.addIngredient(
+            IngredientQuantity(
+                ingredient = IngredientName("Milk"),
+                amount = 250.0,
+                unit = IngredientUnit.MILLILITER
+            )
+        )
+
+        val meal1 = mealPlan.createMeal(MealDate(LocalDate.of(2026, 2, 6)), MealType.LUNCH)
+        meal1.recipeId = recipeId1
+        meal1.addParticipant(UserId(UUID.randomUUID()))
+
+        val meal2 = mealPlan.createMeal(MealDate(LocalDate.of(2026, 2, 6)), MealType.DINNER)
+        meal2.recipeId = recipeId2
+        meal2.addParticipant(UserId(UUID.randomUUID()))
+
+        val result = generator.generate(
+            mealPlan = mealPlan,
+            recipesById = mapOf(recipeId1 to recipe1, recipeId2 to recipe2),
+            startDate = LocalDate.of(2026, 2, 5),
+            endDate = LocalDate.of(2026, 2, 7)
+        )
+
+        assertEquals(1, result.items.size)
+        assertEquals("Milk", result.items[0].ingredient.value)
+        assertEquals(IngredientUnit.MILLILITER, result.items[0].unit)
+        assertEquals(1250.0, result.items[0].totalAmount)
+    }
+
+    @Test
+    fun aggregateKitchenVolumeUnitsIntoMilliliters() {
+        val recipeId1 = RecipeId(UUID.randomUUID())
+        val recipe1 = Recipe(
+            id = recipeId1,
+            title = "Recipe 1"
+        )
+
+        recipe1.addIngredient(
+            IngredientQuantity(
+                ingredient = IngredientName("Oil"),
+                amount = 1.0,
+                unit = IngredientUnit.TABLESPOON
+            )
+        )
+
+        val recipeId2 = RecipeId(UUID.randomUUID())
+        val recipe2 = Recipe(
+            id = recipeId2,
+            title = "Recipe 2"
+        )
+
+        recipe2.addIngredient(
+            IngredientQuantity(
+                ingredient = IngredientName("Oil"),
+                amount = 2.0,
+                unit = IngredientUnit.TEASPOON
+            )
+        )
+
+        val meal1 = mealPlan.createMeal(MealDate(LocalDate.of(2026, 2, 8)), MealType.LUNCH)
+        meal1.recipeId = recipeId1
+        meal1.addParticipant(UserId(UUID.randomUUID()))
+
+        val meal2 = mealPlan.createMeal(MealDate(LocalDate.of(2026, 2, 8)), MealType.DINNER)
+        meal2.recipeId = recipeId2
+        meal2.addParticipant(UserId(UUID.randomUUID()))
+
+        val result = generator.generate(
+            mealPlan = mealPlan,
+            recipesById = mapOf(recipeId1 to recipe1, recipeId2 to recipe2),
+            startDate = LocalDate.of(2026, 2, 7),
+            endDate = LocalDate.of(2026, 2, 9)
+        )
+
+        assertEquals(1, result.items.size)
+        assertEquals("Oil", result.items[0].ingredient.value)
+        assertEquals(IngredientUnit.MILLILITER, result.items[0].unit)
+        assertEquals(25.0, result.items[0].totalAmount)
     }
 }
