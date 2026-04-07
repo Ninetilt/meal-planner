@@ -57,7 +57,7 @@ fun Route.recipeRoutes(
         }
 
         get("/{id}") {
-            val uuid = parseUuidParam(call.parameters["id"], "recipe id")
+            val uuid = call.requireUuidParam("id")
             val view = getRecipeUseCase.execute(RecipeId(uuid))
 
             val response = RecipeDetailsResponse(
@@ -76,7 +76,7 @@ fun Route.recipeRoutes(
         }
 
         delete("/{id}") {
-            val uuid = parseUuidParam(call.parameters["id"], "recipe id")
+            val uuid = call.requireUuidParam("id")
             deleteRecipeUseCase.execute(RecipeId(uuid))
 
             call.respond(
@@ -86,7 +86,7 @@ fun Route.recipeRoutes(
         }
 
         post("/{id}/ingredients") {
-            val uuid = parseUuidParam(call.parameters["id"], "recipe id")
+            val uuid = call.requireUuidParam("id")
 
             val req = call.receive<AddIngredientRequest>()
 
@@ -101,7 +101,7 @@ fun Route.recipeRoutes(
         }
 
         put("/{id}/ingredients") {
-            val uuid = parseUuidParam(call.parameters["id"], "recipe id")
+            val uuid = call.requireUuidParam("id")
 
             val req = call.receive<de.dhbw.mealplanner.api.dto.recipe.ChangeIngredientQuantityRequest>()
 
@@ -116,7 +116,7 @@ fun Route.recipeRoutes(
         }
 
         delete("/{id}/ingredients") {
-            val uuid = parseUuidParam(call.parameters["id"], "recipe id")
+            val uuid = call.requireUuidParam("id")
 
             val req = call.receive<RemoveIngredientRequest>()
 
@@ -129,7 +129,7 @@ fun Route.recipeRoutes(
         }
 
         put("/{id}/description") {
-            val uuid = parseUuidParam(call.parameters["id"], "recipe id")
+            val uuid = call.requireUuidParam("id")
 
             val req = call.receive<ChangeDescriptionRequest>()
 

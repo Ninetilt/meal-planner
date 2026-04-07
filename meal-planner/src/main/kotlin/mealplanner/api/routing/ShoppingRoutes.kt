@@ -12,13 +12,9 @@ fun Route.shoppingRoutes(
 ) {
     route("/shoppinglist") {
         get {
-            val mealPlanIdParam = call.request.queryParameters["mealPlanId"]
-            val startParam = call.request.queryParameters["start"]
-            val endParam = call.request.queryParameters["end"]
-
-            val planUuid = parseUuidParam(mealPlanIdParam, "mealPlanId")
-            val start = parseDateParam(startParam, "start date")
-            val end = parseDateParam(endParam, "end date")
+            val planUuid = call.requireUuidQueryParam("mealPlanId")
+            val start = call.requireDateQueryParam("start", "start date")
+            val end = call.requireDateQueryParam("end", "end date")
             val shoppingList = generateShoppingListUseCase.execute(MealPlanId(planUuid), start, end)
 
             val response = ShoppingListResponse(

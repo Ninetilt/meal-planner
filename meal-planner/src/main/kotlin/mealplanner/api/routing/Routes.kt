@@ -27,12 +27,10 @@ import de.dhbw.mealplanner.application.recipe.query.GetRecipeUseCase
 import de.dhbw.mealplanner.application.shoppinglist.GenerateShoppingListUseCase
 import de.dhbw.mealplanner.application.user.CreateUserUseCase
 import de.dhbw.mealplanner.application.user.DeleteUserUseCase
-import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
 fun Application.registerRoutes(
-    mealPlanRepository: MealPlanRepository,
     generateShoppingListUseCase: GenerateShoppingListUseCase,
     assignRecipeToMealUseCase: AssignRecipeToMealUseCase,
     addParticipantToMealUseCase: AddParticipantToMealUseCase,
@@ -78,7 +76,6 @@ fun Application.registerRoutes(
             getMealPlansForUserUseCase
         )
         mealPlanRoutes(
-            mealPlanRepository,
             assignRecipeToMealUseCase,
             addParticipantToMealUseCase,
             removeParticipantFromMealUseCase,

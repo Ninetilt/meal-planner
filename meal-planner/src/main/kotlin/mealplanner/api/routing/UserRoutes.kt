@@ -34,7 +34,7 @@ fun Route.userRoutes(
         }
 
         delete("/{userId}") {
-            val userUuid = parseUuidParam(call.parameters["userId"], "userId")
+            val userUuid = call.requireUuidParam("userId")
 
             deleteUserUseCase.execute(UserId(userUuid))
 
@@ -45,7 +45,7 @@ fun Route.userRoutes(
         }
 
         get("/{userId}/mealplans") {
-            val userUuid = parseUuidParam(call.parameters["userId"], "userId")
+            val userUuid = call.requireUuidParam("userId")
             val mealPlans = getMealPlansForUserUseCase.execute(UserId(userUuid))
 
             call.respond(

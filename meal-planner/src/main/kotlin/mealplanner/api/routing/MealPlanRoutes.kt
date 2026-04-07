@@ -32,7 +32,6 @@ import de.dhbw.mealplanner.application.mealplan.query.GetMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
-import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
 import de.dhbw.mealplanner.domain.mealplan.MealType
 import de.dhbw.mealplanner.domain.recipe.RecipeId
 import de.dhbw.mealplanner.domain.user.UserId
@@ -63,7 +62,7 @@ fun Route.mealPlanRoutes(
         post {
             val req = call.receive<CreateMealPlanRequest>()
 
-            val creatorUuid = parseUuidParam(req.createdBy, "createdBy")
+            val creatorUuid = parseUuid(req.createdBy, "createdBy")
 
             val mealPlanId = createMealPlanUseCase.execute(
                 name = req.name,
@@ -88,7 +87,7 @@ fun Route.mealPlanRoutes(
         }
 
         get("/{planId}") {
-            val planUuid = parseUuidParam(call.parameters["planId"], "planId")
+            val planUuid = call.requireUuidParam("planId")
             val view = getMealPlanUseCase.execute(MealPlanId(planUuid))
 
             val response = MealPlanResponse(
@@ -113,7 +112,7 @@ fun Route.mealPlanRoutes(
         }
 
         delete("/{planId}") {
-            val planUuid = parseUuidParam(call.parameters["planId"], "planId")
+            val planUuid = call.requireUuidParam("planId")
             deleteMealPlanUseCase.execute(MealPlanId(planUuid))
 
             call.respond(
@@ -123,12 +122,12 @@ fun Route.mealPlanRoutes(
         }
 
         post("/{planId}/meals") {
-            val planUuid = parseUuidParam(call.parameters["planId"], "planId")
+            val planUuid = call.requireUuidParam("planId")
 
             val req = call.receive<CreateMealRequest>()
 
-            val date = parseDateParam(req.date, "date")
-            val type = parseEnumParam<MealType>(req.type, "type")
+            val date = parseDate(req.date, "date")
+            val type = parseEnum<MealType>(req.type, "type")
             val mealId = createMealUseCase.execute(
                 mealPlanId = MealPlanId(planUuid),
                 date = date,
@@ -139,11 +138,11 @@ fun Route.mealPlanRoutes(
         }
 
         post("/{planId}/members") {
-            val planUuid = parseUuidParam(call.parameters["planId"], "planId")
+            val planUuid = call.requireUuidParam("planId")
 
             val req = call.receive<AddUserToMealPlanRequest>()
 
-            val userUuid = parseUuidParam(req.userId, "userId")
+            val userUuid = parseUuid(req.userId, "userId")
             addUserToMealPlanUseCase.execute(
                 mealPlanId = MealPlanId(planUuid),
                 userId = UserId(userUuid)
@@ -153,11 +152,11 @@ fun Route.mealPlanRoutes(
         }
 
         delete("/{planId}/members") {
-            val planUuid = parseUuidParam(call.parameters["planId"], "planId")
+            val planUuid = call.requireUuidParam("planId")
 
             val req = call.receive<RemoveUserFromMealPlanRequest>()
 
-            val userUuid = parseUuidParam(req.userId, "userId")
+            val userUuid = parseUuid(req.userId, "userId")
             removeUserFromMealPlanUseCase.execute(
                 mealPlanId = MealPlanId(planUuid),
                 userId = UserId(userUuid)
@@ -167,8 +166,8 @@ fun Route.mealPlanRoutes(
         }
 
         get("/{planId}/meals/{mealId}") {
-            val planUuid = parseUuidParam(call.parameters["planId"], "planId")
-            val mealUuid = parseUuidParam(call.parameters["mealId"], "mealId")
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
             val view = getMealUseCase.execute(
                 mealPlanId = MealPlanId(planUuid),
                 mealId = MealId(mealUuid)
@@ -187,8 +186,8 @@ fun Route.mealPlanRoutes(
         }
 
         delete("/{planId}/meals/{mealId}") {
-            val planUuid = parseUuidParam(call.parameters["planId"], "planId")
-            val mealUuid = parseUuidParam(call.parameters["mealId"], "mealId")
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
             deleteMealUseCase.execute(
                 mealPlanId = MealPlanId(planUuid),
                 mealId = MealId(mealUuid)
@@ -204,11 +203,11 @@ fun Route.mealPlanRoutes(
         }
 
         post("/{planId}/meals/{mealId}/participants") {
-            val planUuid = parseUuidParam(call.parameters["planId"], "planId")
-            val mealUuid = parseUuidParam(call.parameters["mealId"], "mealId")
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
 
             val req = call.receive<AddParticipantRequest>()
-            val userUuid = parseUuidParam(req.userId, "userId")
+            val userUuid = parseUuid(req.userId, "userId")
             addParticipantToMealUseCase.execute(
                 mealPlanId = MealPlanId(planUuid),
                 mealId = MealId(mealUuid),
@@ -219,11 +218,11 @@ fun Route.mealPlanRoutes(
         }
 
         delete("/{planId}/meals/{mealId}/participants") {
-            val planUuid = parseUuidParam(call.parameters["planId"], "planId")
-            val mealUuid = parseUuidParam(call.parameters["mealId"], "mealId")
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
 
             val req = call.receive<RemoveParticipantRequest>()
-            val userUuid = parseUuidParam(req.userId, "userId")
+            val userUuid = parseUuid(req.userId, "userId")
             removeParticipantFromMealUseCase.execute(
                 mealPlanId = MealPlanId(planUuid),
                 mealId = MealId(mealUuid),
@@ -234,11 +233,11 @@ fun Route.mealPlanRoutes(
         }
 
         post("/{planId}/meals/{mealId}/responsibles") {
-            val planUuid = parseUuidParam(call.parameters["planId"], "planId")
-            val mealUuid = parseUuidParam(call.parameters["mealId"], "mealId")
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
 
             val req = call.receive<AssignResponsibleRequest>()
-            val userUuid = parseUuidParam(req.userId, "userId")
+            val userUuid = parseUuid(req.userId, "userId")
             assignResponsibleToMealUseCase.execute(
                 mealPlanId = MealPlanId(planUuid),
                 mealId = MealId(mealUuid),
@@ -249,11 +248,11 @@ fun Route.mealPlanRoutes(
         }
 
         delete("/{planId}/meals/{mealId}/responsibles") {
-            val planUuid = parseUuidParam(call.parameters["planId"], "planId")
-            val mealUuid = parseUuidParam(call.parameters["mealId"], "mealId")
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
 
             val req = call.receive<RemoveResponsibleRequest>()
-            val userUuid = parseUuidParam(req.userId, "userId")
+            val userUuid = parseUuid(req.userId, "userId")
             removeResponsibleFromMealUseCase.execute(
                 mealPlanId = MealPlanId(planUuid),
                 mealId = MealId(mealUuid),
@@ -264,11 +263,11 @@ fun Route.mealPlanRoutes(
         }
 
         put("/{planId}/meals/{mealId}/recipe") {
-            val planUuid = parseUuidParam(call.parameters["planId"], "planId")
-            val mealUuid = parseUuidParam(call.parameters["mealId"], "mealId")
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
 
             val req = call.receive<AssignRecipeRequest>()
-            val recipeUuid = parseUuidParam(req.recipeId, "recipeId")
+            val recipeUuid = parseUuid(req.recipeId, "recipeId")
             assignRecipeToMealUseCase.execute(
                 mealPlanId = MealPlanId(planUuid),
                 mealId = MealId(mealUuid),
@@ -279,8 +278,8 @@ fun Route.mealPlanRoutes(
         }
 
         delete("/{planId}/meals/{mealId}/recipe") {
-            val planUuid = parseUuidParam(call.parameters["planId"], "planId")
-            val mealUuid = parseUuidParam(call.parameters["mealId"], "mealId")
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
             removeRecipeFromMealUseCase.execute(
                 mealPlanId = MealPlanId(planUuid),
                 mealId = MealId(mealUuid)

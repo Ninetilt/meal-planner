@@ -97,7 +97,6 @@ fun Application.module() {
     val getMealPlansForUserUseCase = GetMealPlansForUserUseCase(mealPlanRepository, userRepository)
 
     registerRoutes(
-        mealPlanRepository = mealPlanRepository,
         generateShoppingListUseCase = generateShoppingListUseCase,
         assignRecipeToMealUseCase = assignRecipeToMealUseCase,
         addParticipantToMealUseCase = addParticipantToMealUseCase,
