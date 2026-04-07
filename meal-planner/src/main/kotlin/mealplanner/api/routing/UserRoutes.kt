@@ -3,7 +3,7 @@ package de.dhbw.mealplanner.api.routing
 import de.dhbw.mealplanner.api.dto.mealplan.MealPlanListItemResponse
 import de.dhbw.mealplanner.api.dto.user.CreateUserRequest
 import de.dhbw.mealplanner.api.dto.user.DeleteUserResponse
-import de.dhbw.mealplanner.application.common.IdResponse
+import de.dhbw.mealplanner.api.dto.common.CreatedResourceResponse
 import de.dhbw.mealplanner.application.mealplan.query.GetMealPlansForUserUseCase
 import de.dhbw.mealplanner.application.user.CreateUserUseCase
 import de.dhbw.mealplanner.application.user.DeleteUserUseCase
@@ -24,7 +24,7 @@ fun Route.userRoutes(
         post {
             val req = call.receive<CreateUserRequest>()
             val id = createUserUseCase.execute(req.toCommand())
-            call.respond(HttpStatusCode.Created, IdResponse(id.value.toString()))
+            call.respond(HttpStatusCode.Created, CreatedResourceResponse(id.value.toString()))
         }
 
         delete("/{userId}") {

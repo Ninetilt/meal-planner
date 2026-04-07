@@ -8,7 +8,7 @@ import de.dhbw.mealplanner.api.dto.recipe.DeleteRecipeResponse
 import de.dhbw.mealplanner.api.dto.recipe.RemoveIngredientRequest
 import de.dhbw.mealplanner.api.dto.recipe.RecipeDetailsResponse
 import de.dhbw.mealplanner.api.dto.recipe.RecipeResponse
-import de.dhbw.mealplanner.application.common.IdResponse
+import de.dhbw.mealplanner.api.dto.common.CreatedResourceResponse
 import de.dhbw.mealplanner.application.recipe.RemoveIngredientFromRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.AddIngredientToRecipeUseCase
 import de.dhbw.mealplanner.application.recipe.ChangeIngredientQuantityUseCase
@@ -39,7 +39,7 @@ fun Route.recipeRoutes(
         post {
             val req = call.receive<CreateRecipeRequest>()
             val recipeId = createRecipeUseCase.execute(req.toCommand())
-            call.respond(HttpStatusCode.Created, IdResponse(recipeId.value.toString()))
+            call.respond(HttpStatusCode.Created, CreatedResourceResponse(recipeId.value.toString()))
         }
 
         get {

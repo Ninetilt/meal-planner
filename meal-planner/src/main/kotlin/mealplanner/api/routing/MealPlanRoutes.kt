@@ -14,7 +14,7 @@ import de.dhbw.mealplanner.api.dto.mealplan.MealResponse
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveParticipantRequest
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveResponsibleRequest
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveUserFromMealPlanRequest
-import de.dhbw.mealplanner.application.common.IdResponse
+import de.dhbw.mealplanner.api.dto.common.CreatedResourceResponse
 import de.dhbw.mealplanner.application.mealplan.AddParticipantToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AddUserToMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
@@ -59,7 +59,7 @@ fun Route.mealPlanRoutes(
         post {
             val req = call.receive<CreateMealPlanRequest>()
             val mealPlanId = createMealPlanUseCase.execute(req.toCommand())
-            call.respond(HttpStatusCode.Created,IdResponse(mealPlanId.value.toString()))
+            call.respond(HttpStatusCode.Created,CreatedResourceResponse(mealPlanId.value.toString()))
         }
 
         get {
@@ -86,7 +86,7 @@ fun Route.mealPlanRoutes(
             val planUuid = call.requireUuidParam("planId")
             val req = call.receive<CreateMealRequest>()
             val mealId = createMealUseCase.execute(req.toCommand(planUuid))
-            call.respond(HttpStatusCode.Created,IdResponse(mealId.value.toString()))
+            call.respond(HttpStatusCode.Created,CreatedResourceResponse(mealId.value.toString()))
         }
 
         post("/{planId}/members") {
