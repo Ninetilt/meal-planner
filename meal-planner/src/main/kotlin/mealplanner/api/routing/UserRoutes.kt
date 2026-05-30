@@ -3,9 +3,7 @@ package de.dhbw.mealplanner.api.routing
 import de.dhbw.mealplanner.api.dto.mealplan.MealPlanListItemResponse
 import de.dhbw.mealplanner.api.dto.user.CreateUserRequest
 import de.dhbw.mealplanner.api.dto.user.DeleteUserResponse
-import de.dhbw.mealplanner.application.common.IdResponse
-import de.dhbw.mealplanner.application.common.NotFoundError
-import de.dhbw.mealplanner.application.common.ValidationError
+import de.dhbw.mealplanner.api.dto.common.CreatedResourceResponse
 import de.dhbw.mealplanner.application.mealplan.query.GetMealPlansForUserUseCase
 import de.dhbw.mealplanner.application.user.CreateUserUseCase
 import de.dhbw.mealplanner.application.user.DeleteUserUseCase
@@ -25,29 +23,14 @@ fun Route.userRoutes(
 
         post {
             val req = call.receive<CreateUserRequest>()
-
-            val id = try {
-                createUserUseCase.execute(
-                    name = req.name,
-                    email = req.email,
-                    password = req.password
-                )
-            } catch (e: ValidationError) {
-                return@post call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
-            }
-
-            call.respond(HttpStatusCode.Created, IdResponse(id.value.toString()))
+            val id = createUserUseCase.execute(req.toCommand())
+            call.respond(HttpStatusCode.Created, CreatedResourceResponse(id.value.toString()))
         }
 
         delete("/{userId}") {
-            val userUuid = parseUuidParam(call.parameters["userId"])
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid userId")
+            val userUuid = call.requireUuidParam("userId")
 
-            try {
-                deleteUserUseCase.execute(UserId(userUuid))
-            } catch (e: NotFoundError) {
-                return@delete call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
+            deleteUserUseCase.execute(UserId(userUuid))
 
             call.respond(
                 HttpStatusCode.OK,
@@ -56,29 +39,9 @@ fun Route.userRoutes(
         }
 
         get("/{userId}/mealplans") {
-            val userUuid = parseUuidParam(call.parameters["userId"])
-                ?: return@get call.respond(HttpStatusCode.BadRequest, "invalid userId")
-
-            val mealPlans = try {
-                getMealPlansForUserUseCase.execute(UserId(userUuid))
-            } catch (e: NotFoundError) {
-                return@get call.respond(
-                    HttpStatusCode.NotFound,
-                    e.message ?: "not found"
-                )
-            }
-
-            call.respond(
-                mealPlans.map {
-                    MealPlanListItemResponse(
-                        id = it.id,
-                        name = it.name,
-                        createdBy = it.createdBy,
-                        memberCount = it.memberCount,
-                        mealCount = it.mealCount
-                    )
-                }
-            )
+            val userUuid = call.requireUuidParam("userId")
+            val mealPlans = getMealPlansForUserUseCase.execute(UserId(userUuid))
+            call.respond(mealPlans.map(MealPlanListItemResponse::from))
         }
     }
 }

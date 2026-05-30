@@ -14,9 +14,7 @@ import de.dhbw.mealplanner.api.dto.mealplan.MealResponse
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveParticipantRequest
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveResponsibleRequest
 import de.dhbw.mealplanner.api.dto.mealplan.RemoveUserFromMealPlanRequest
-import de.dhbw.mealplanner.application.common.IdResponse
-import de.dhbw.mealplanner.application.common.NotFoundError
-import de.dhbw.mealplanner.application.common.ValidationError
+import de.dhbw.mealplanner.api.dto.common.CreatedResourceResponse
 import de.dhbw.mealplanner.application.mealplan.AddParticipantToMealUseCase
 import de.dhbw.mealplanner.application.mealplan.AddUserToMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.AssignRecipeToMealUseCase
@@ -34,19 +32,12 @@ import de.dhbw.mealplanner.application.mealplan.query.GetMealPlanUseCase
 import de.dhbw.mealplanner.application.mealplan.query.GetMealUseCase
 import de.dhbw.mealplanner.domain.mealplan.MealId
 import de.dhbw.mealplanner.domain.mealplan.MealPlanId
-import de.dhbw.mealplanner.domain.mealplan.MealPlanRepository
-import de.dhbw.mealplanner.domain.mealplan.MealType
-import de.dhbw.mealplanner.domain.recipe.RecipeId
-import de.dhbw.mealplanner.domain.user.UserId
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import java.time.LocalDate
-import java.util.UUID
 
 fun Route.mealPlanRoutes(
-    mealPlanRepository: MealPlanRepository,
     assignRecipeToMealUseCase: AssignRecipeToMealUseCase,
     addParticipantToMealUseCase: AddParticipantToMealUseCase,
     removeParticipantFromMealUseCase: RemoveParticipantFromMealUseCase,
@@ -67,79 +58,24 @@ fun Route.mealPlanRoutes(
 
         post {
             val req = call.receive<CreateMealPlanRequest>()
-
-            val creatorUuid = parseUuidParam(req.createdBy)
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid createdBy")
-
-            val mealPlanId = try {
-                createMealPlanUseCase.execute(
-                    name = req.name,
-                    createdBy = UserId(creatorUuid)
-                )
-            } catch (e: ValidationError) {
-                return@post call.respond(HttpStatusCode.BadRequest, e.message ?: "validation error")
-            } catch (e: NotFoundError) {
-                return@post call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
-            call.respond(HttpStatusCode.Created,IdResponse(mealPlanId.value.toString()))
+            val mealPlanId = createMealPlanUseCase.execute(req.toCommand())
+            call.respond(HttpStatusCode.Created,CreatedResourceResponse(mealPlanId.value.toString()))
         }
 
         get {
             val mealPlans = getAllMealPlansUseCase.execute()
-            call.respond(
-                mealPlans.map {
-                    MealPlanListItemResponse(
-                        id = it.id,
-                        name = it.name,
-                        createdBy = it.createdBy,
-                        memberCount = it.memberCount,
-                        mealCount = it.mealCount
-                    )
-                }
-            )
+            call.respond(mealPlans.map(MealPlanListItemResponse::from))
         }
 
         get("/{planId}") {
-            val planUuid = parseUuidParam(call.parameters["planId"])
-                ?: return@get call.respond(HttpStatusCode.BadRequest, "invalid planId")
-
-            val view = try {
-                getMealPlanUseCase.execute(MealPlanId(planUuid))
-            } catch (e: NotFoundError) {
-                return@get call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
-
-            val response = MealPlanResponse(
-                id = view.id,
-                name = view.name,
-                createdBy = view.createdBy,
-                memberCount = view.memberCount,
-                mealCount = view.mealCount,
-                meals = view.meals.map {
-                    MealResponse(
-                        id = it.id,
-                        date = it.date,
-                        type = it.type,
-                        recipeId = it.recipeId,
-                        participantCount = it.participantCount,
-                        responsibleCount = it.responsibleCount
-                    )
-                }
-            )
-
-            call.respond(response)
+            val planUuid = call.requireUuidParam("planId")
+            val view = getMealPlanUseCase.execute(MealPlanId(planUuid))
+            call.respond(MealPlanResponse.from(view))
         }
 
         delete("/{planId}") {
-            val planUuid = parseUuidParam(call.parameters["planId"])
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid planId")
-
-            try {
-                deleteMealPlanUseCase.execute(MealPlanId(planUuid))
-            } catch (e: NotFoundError) {
-                return@delete call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
-
+            val planUuid = call.requireUuidParam("planId")
+            deleteMealPlanUseCase.execute(MealPlanId(planUuid))
             call.respond(
                 HttpStatusCode.OK,
                 DeleteMealPlanResponse(id = planUuid.toString())
@@ -147,118 +83,43 @@ fun Route.mealPlanRoutes(
         }
 
         post("/{planId}/meals") {
-            val planUuid = parseUuidParam(call.parameters["planId"])
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid planId")
-
+            val planUuid = call.requireUuidParam("planId")
             val req = call.receive<CreateMealRequest>()
-
-            val date = runCatching { LocalDate.parse(req.date) }.getOrNull()
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid date")
-
-            val type = runCatching { MealType.valueOf(req.type) }.getOrNull()
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid type")
-
-            val mealId = try {
-                createMealUseCase.execute(
-                    mealPlanId = MealPlanId(planUuid),
-                    date = date,
-                    type = type
-                )
-            } catch (e: NotFoundError) {
-                return@post call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
-
-            call.respond(HttpStatusCode.Created,IdResponse(mealId.value.toString()))
+            val mealId = createMealUseCase.execute(req.toCommand(planUuid))
+            call.respond(HttpStatusCode.Created,CreatedResourceResponse(mealId.value.toString()))
         }
 
         post("/{planId}/members") {
-            val planUuid = parseUuidParam(call.parameters["planId"])
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid planId")
-
+            val planUuid = call.requireUuidParam("planId")
             val req = call.receive<AddUserToMealPlanRequest>()
-
-            val userUuid = parseUuidParam(req.userId)
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid userId")
-
-            try {
-                addUserToMealPlanUseCase.execute(
-                    mealPlanId = MealPlanId(planUuid),
-                    userId = UserId(userUuid)
-                )
-            } catch (e: NotFoundError) {
-                return@post call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
-
+            addUserToMealPlanUseCase.execute(req.toCommand(planUuid))
             call.respond(HttpStatusCode.OK)
         }
 
         delete("/{planId}/members") {
-            val planUuid = parseUuidParam(call.parameters["planId"])
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid planId")
-
+            val planUuid = call.requireUuidParam("planId")
             val req = call.receive<RemoveUserFromMealPlanRequest>()
-
-            val userUuid = parseUuidParam(req.userId)
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid userId")
-
-            try {
-                removeUserFromMealPlanUseCase.execute(
-                    mealPlanId = MealPlanId(planUuid),
-                    userId = UserId(userUuid)
-                )
-            } catch (e: ValidationError) {
-                return@delete call.respond(HttpStatusCode.BadRequest,e.message ?: "validation error")
-            } catch (e: NotFoundError) {
-                return@delete call.respond(HttpStatusCode.NotFound,e.message ?: "not found")
-            }
-
+            removeUserFromMealPlanUseCase.execute(req.toCommand(planUuid))
             call.respond(HttpStatusCode.OK)
         }
 
         get("/{planId}/meals/{mealId}") {
-            val planUuid = parseUuidParam(call.parameters["planId"])
-                ?: return@get call.respond(HttpStatusCode.BadRequest, "invalid planId")
-
-            val mealUuid = parseUuidParam(call.parameters["mealId"])
-                ?: return@get call.respond(HttpStatusCode.BadRequest, "invalid mealId")
-
-            val view = try {
-                getMealUseCase.execute(
-                    mealPlanId = MealPlanId(planUuid),
-                    mealId = MealId(mealUuid)
-                )
-            } catch (e: NotFoundError) {
-                return@get call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
-
-            val response = MealResponse(
-                id = view.id,
-                date = view.date,
-                type = view.type,
-                recipeId = view.recipeId,
-                participantCount = view.participantCount,
-                responsibleCount = view.responsibleCount
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
+            val view = getMealUseCase.execute(
+                mealPlanId = MealPlanId(planUuid),
+                mealId = MealId(mealUuid)
             )
-
-            call.respond(response)
+            call.respond(MealResponse.from(view))
         }
 
         delete("/{planId}/meals/{mealId}") {
-            val planUuid = parseUuidParam(call.parameters["planId"])
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid planId")
-
-            val mealUuid = parseUuidParam(call.parameters["mealId"])
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid mealId")
-
-            try {
-                deleteMealUseCase.execute(
-                    mealPlanId = MealPlanId(planUuid),
-                    mealId = MealId(mealUuid)
-                )
-            } catch (e: NotFoundError) {
-                return@delete call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
-
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
+            deleteMealUseCase.execute(
+                mealPlanId = MealPlanId(planUuid),
+                mealId = MealId(mealUuid)
+            )
             call.respond(
                 HttpStatusCode.OK,
                 DeleteMealResponse(
@@ -269,139 +130,52 @@ fun Route.mealPlanRoutes(
         }
 
         post("/{planId}/meals/{mealId}/participants") {
-            val planUuid = parseUuidParam(call.parameters["planId"])
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid planId")
-            val mealUuid = parseUuidParam(call.parameters["mealId"])
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid mealId")
-
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
             val req = call.receive<AddParticipantRequest>()
-            val userUuid = runCatching { UUID.fromString(req.userId) }.getOrNull()
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid userId")
-
-            try {
-                addParticipantToMealUseCase.execute(
-                    mealPlanId = MealPlanId(planUuid),
-                    mealId = MealId(mealUuid),
-                    userId = UserId(userUuid)
-                )
-            } catch (e: NotFoundError) {
-                return@post call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
-
+            addParticipantToMealUseCase.execute(req.toCommand(planUuid, mealUuid))
             call.respond(HttpStatusCode.OK)
         }
 
         delete("/{planId}/meals/{mealId}/participants") {
-            val planUuid = parseUuidParam(call.parameters["planId"])
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid planId")
-            val mealUuid = parseUuidParam(call.parameters["mealId"])
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid mealId")
-
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
             val req = call.receive<RemoveParticipantRequest>()
-            val userUuid = runCatching { UUID.fromString(req.userId) }.getOrNull()
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid userId")
-
-            try {
-                removeParticipantFromMealUseCase.execute(
-                    mealPlanId = MealPlanId(planUuid),
-                    mealId = MealId(mealUuid),
-                    userId = UserId(userUuid)
-                )
-            } catch (e: NotFoundError) {
-                return@delete call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
-
+            removeParticipantFromMealUseCase.execute(req.toCommand(planUuid, mealUuid))
             call.respond(HttpStatusCode.OK)
         }
 
         post("/{planId}/meals/{mealId}/responsibles") {
-            val planUuid = parseUuidParam(call.parameters["planId"])
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid planId")
-
-            val mealUuid = parseUuidParam(call.parameters["mealId"])
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid mealId")
-
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
             val req = call.receive<AssignResponsibleRequest>()
-            val userUuid = runCatching { UUID.fromString(req.userId) }.getOrNull()
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "invalid userId")
-
-            try {
-                assignResponsibleToMealUseCase.execute(
-                    mealPlanId = MealPlanId(planUuid),
-                    mealId = MealId(mealUuid),
-                    userId = UserId(userUuid)
-                )
-            } catch (e: NotFoundError) {
-                return@post call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
-
+            assignResponsibleToMealUseCase.execute(req.toCommand(planUuid, mealUuid))
             call.respond(HttpStatusCode.OK)
         }
 
         delete("/{planId}/meals/{mealId}/responsibles") {
-            val planUuid = parseUuidParam(call.parameters["planId"])
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid planId")
-
-            val mealUuid = parseUuidParam(call.parameters["mealId"])
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid mealId")
-
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
             val req = call.receive<RemoveResponsibleRequest>()
-            val userUuid = runCatching { UUID.fromString(req.userId) }.getOrNull()
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid userId")
-
-            try {
-                removeResponsibleFromMealUseCase.execute(
-                    mealPlanId = MealPlanId(planUuid),
-                    mealId = MealId(mealUuid),
-                    userId = UserId(userUuid)
-                )
-            } catch (e: NotFoundError) {
-                return@delete call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
-
+            removeResponsibleFromMealUseCase.execute(req.toCommand(planUuid, mealUuid))
             call.respond(HttpStatusCode.OK)
         }
 
         put("/{planId}/meals/{mealId}/recipe") {
-            val planUuid = parseUuidParam(call.parameters["planId"])
-                ?: return@put call.respond(HttpStatusCode.BadRequest, "invalid planId")
-
-            val mealUuid = parseUuidParam(call.parameters["mealId"])
-                ?: return@put call.respond(HttpStatusCode.BadRequest, "invalid mealId")
-
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
             val req = call.receive<AssignRecipeRequest>()
-            val recipeUuid = runCatching { UUID.fromString(req.recipeId) }.getOrNull()
-                ?: return@put call.respond(HttpStatusCode.BadRequest, "invalid recipeId")
-
-            try {
-                assignRecipeToMealUseCase.execute(
-                    mealPlanId = MealPlanId(planUuid),
-                    mealId = MealId(mealUuid),
-                    recipeId = RecipeId(recipeUuid)
-                )
-            } catch (e: NotFoundError) {
-                return@put call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
-
+            assignRecipeToMealUseCase.execute(req.toCommand(planUuid, mealUuid))
             call.respond(HttpStatusCode.OK)
         }
 
         delete("/{planId}/meals/{mealId}/recipe") {
-            val planUuid = parseUuidParam(call.parameters["planId"])
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid planId")
-
-            val mealUuid = parseUuidParam(call.parameters["mealId"])
-                ?: return@delete call.respond(HttpStatusCode.BadRequest, "invalid mealId")
-
-            try {
-                removeRecipeFromMealUseCase.execute(
-                    mealPlanId = MealPlanId(planUuid),
-                    mealId = MealId(mealUuid)
-                )
-            } catch (e: NotFoundError) {
-                return@delete call.respond(HttpStatusCode.NotFound, e.message ?: "not found")
-            }
-
+            val planUuid = call.requireUuidParam("planId")
+            val mealUuid = call.requireUuidParam("mealId")
+            removeRecipeFromMealUseCase.execute(
+                mealPlanId = MealPlanId(planUuid),
+                mealId = MealId(mealUuid)
+            )
             call.respond(HttpStatusCode.OK)
         }
     }
