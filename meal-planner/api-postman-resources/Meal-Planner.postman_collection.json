@@ -1,0 +1,904 @@
+{
+  "info": {
+    "_postman_id": "86adc858-e9ca-4371-bdcc-1171008848c7",
+    "name": "Meal-Planner",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "45062593"
+  },
+  "item": [
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Test Nutzer\",\r\n  \"email\": \"test@example.com\",\r\n  \"password\": \"secret123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/users",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:8080/users/{{userId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Mealplans for User",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:8080/users/{{userId}}/mealplans",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "users",
+                "{{userId}}",
+                "mealplans"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Recipe",
+      "item": [
+        {
+          "name": "Create Recipe",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Test Rezept 2\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/recipes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "recipes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Recipes",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:8080/recipes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "recipes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Recipe",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:8080/recipes/{{recipeId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "recipes",
+                "{{recipeId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Recipe",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:8080/recipes/{{recipeId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "recipes",
+                "{{recipeId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Recipe Description",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"description\": \"Test Rezeptbeschreibung\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/recipes/{{recipeId}}/description",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "recipes",
+                "{{recipeId}}",
+                "description"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Ingredient to Recipe",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"ingredient\": \"Kartoffel\",\r\n  \"amount\": \"1\",\r\n  \"unit\": \"kg\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/recipes/{{recipeId}}/ingredients",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "recipes",
+                "{{recipeId}}",
+                "ingredients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Ingredient",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"ingredient\": \"Kartoffel\",\r\n  \"amount\": \"250\",\r\n  \"unit\": \"g\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/recipes/{{recipeId}}/ingredients",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "recipes",
+                "{{recipeId}}",
+                "ingredients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Ingredient",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"ingredient\": \"Milch\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/recipes/{{recipeId}}/ingredients",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "recipes",
+                "{{recipeId}}",
+                "ingredients"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MealPlan",
+      "item": [
+        {
+          "name": "Create MealPlan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Mein Mealplan\",\r\n  \"createdBy\": \"{{userId}}\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All MealPlans",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get MealPlan",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans/{{planId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans",
+                "{{planId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete MealPlan",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans/{{planId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans",
+                "{{planId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add User to MealPlan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"{{userId}}\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans/{{planId}}/members",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans",
+                "{{planId}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove User from MealPlan",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"{{userId}}\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans/{{planId}}/members",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans",
+                "{{planId}}",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Meal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"date\": \"2026-01-02\",\r\n    \"type\": \"DINNER\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans/{{planId}}/meals",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans",
+                "{{planId}}",
+                "meals"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Meal",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans/{{planId}}/meals/{{mealId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans",
+                "{{planId}}",
+                "meals",
+                "{{mealId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Meal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans/{{planId}}/meals/{{mealId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans",
+                "{{planId}}",
+                "meals",
+                "{{mealId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Recipe to Meal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"recipeId\": \"{{recipeId}}\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans/{{planId}}/meals/{{mealId}}/recipe",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans",
+                "{{planId}}",
+                "meals",
+                "{{mealId}}",
+                "recipe"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Recipe from Meal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans/{{planId}}/meals/{{mealId}}/recipe",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans",
+                "{{planId}}",
+                "meals",
+                "{{mealId}}",
+                "recipe"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Paricipant to Meal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"{{userId}}\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans/{{planId}}/meals/{{mealId}}/participants",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans",
+                "{{planId}}",
+                "meals",
+                "{{mealId}}",
+                "participants"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Paricipant from Meal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"{{userId}}\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans/{{planId}}/meals/{{mealId}}/participants",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans",
+                "{{planId}}",
+                "meals",
+                "{{mealId}}",
+                "participants"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Responsible to Meal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"{{userId}}\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans/{{planId}}/meals/{{mealId}}/responsibles",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans",
+                "{{planId}}",
+                "meals",
+                "{{mealId}}",
+                "responsibles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Responsible from Meal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"{{userId}}\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/mealplans/{{planId}}/meals/{{mealId}}/responsibles",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "mealplans",
+                "{{planId}}",
+                "meals",
+                "{{mealId}}",
+                "responsibles"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "ShoppingList",
+      "item": [
+        {
+          "name": "Generate ShoppingList",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:8080/shoppinglist?mealPlanId={{planId}}&start={{startDate}}&end={{endDate}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "shoppinglist"
+              ],
+              "query": [
+                {
+                  "key": "mealPlanId",
+                  "value": "{{planId}}"
+                },
+                {
+                  "key": "start",
+                  "value": "{{startDate}}"
+                },
+                {
+                  "key": "end",
+                  "value": "{{endDate}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
